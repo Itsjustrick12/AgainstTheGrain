@@ -1,4 +1,4 @@
-## CMSC 437 Semester Project: Against The Grain
+![AgainstTheGrain0](https://github.com/user-attachments/assets/efc7a9bc-9a87-4062-a592-d9a384b7adc2)
 
 Against The Grain is a Top Down 2D game that blends elements of strategy and farming games to create unique logistical challenges for the player to overcome. The project was made with **Unity** and **C#**. 
 
