@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/Title Screen.unity
+    guid: 50ea937e13a8052428c87a312ef271c4
+  - enabled: 1
+    path: Assets/Scenes/First Scenario.unity
+    guid: d6f83f70ad4109849915df8c15d1a506
+  - enabled: 1
+    path: Assets/Scenes/Second Scenario.unity
+    guid: adb0f9a8256ae7847ad9959e829e3c4a
+  m_configObjects:
+    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 84b92cb5e3cbf5a479d94b15b6743467, type: 3}
+  m_UseUCBPForAssetBundles: 0

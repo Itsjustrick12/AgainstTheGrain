@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3c60fe69a082c2438c12ee7ebab339b, type: 3}
+  m_Name: Wheat
+  m_EditorClassIdentifier: 
+  numStages: 3
+  sprites:
+  - {fileID: -4818313753074155868, guid: 5ce4569f9fda1564493b0492046f2345, type: 3}
+  - {fileID: -1504871244760539903, guid: 5ce4569f9fda1564493b0492046f2345, type: 3}
+  - {fileID: 4936661642335583362, guid: 5ce4569f9fda1564493b0492046f2345, type: 3}
+  growthDays: 000000000100000002000000
+  cropName: Wheat
