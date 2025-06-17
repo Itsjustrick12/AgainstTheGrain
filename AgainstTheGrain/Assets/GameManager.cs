@@ -75,7 +75,7 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < enemyUnits.transform.childCount; i++)
         {
             yield return CheckEndState();
-            Unit temp = enemyUnits.transform.GetChild(i).GetComponent<Unit>();
+            EnemyUnit temp = enemyUnits.transform.GetChild(i).GetComponent<EnemyUnit>();
             temp.Refresh();
 
             //wait for selected enemy to finish its turn
@@ -150,9 +150,9 @@ public class GameManager : MonoBehaviour
             //Refresh every unit
             Unit childUnit = childObj.GetComponent<Unit>();
 
-            if (childUnit != false)
+            if (childUnit != null)
             {
-                if (childUnit.type != UnitType.Animal || childUnit.isFed)
+                if (childUnit.isUseableUnit())
                 {
                     return false;
                 }
@@ -189,7 +189,7 @@ public class GameManager : MonoBehaviour
 
             if (childUnit != false)
             {
-                if (childUnit.type != UnitType.Animal || childUnit.isFed)
+                if (childUnit.isUseableUnit())
                 {
                     count += 1; 
                 }
@@ -212,7 +212,7 @@ public class GameManager : MonoBehaviour
             if (childUnit != false)
             {
                 //if any unit is still active, dont end the turn automatically
-                if (childUnit.active && (childUnit.type != UnitType.Animal || childUnit.isFed))
+                if (childUnit.active && (childUnit.isUseableUnit()))
                 {
                     Debug.Log("Some units have not been utilized, continue player turn");
                     return;

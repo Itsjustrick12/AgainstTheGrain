@@ -5,7 +5,8 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
 
-public enum ActionType{
+public enum ActionType
+{
     None,
     Attack,
     Move,
@@ -30,7 +31,7 @@ public class CursorToTilemap : MonoBehaviour
 
     SpriteRenderer hoverSprite;
     public Transform hoverTransform;
-    public Vector3Int fromTile; 
+    public Vector3Int fromTile;
 
     private Unit selectedUnit;
     public bool holdingUnit = false;
@@ -56,7 +57,7 @@ public class CursorToTilemap : MonoBehaviour
         GM = GameManager.instance;
         cropManager = FindAnyObjectByType<CropManager>();
         manager = TilemapManager.instance;
-        
+
         hoverSprite = GetComponentInChildren<SpriteRenderer>();
         hoverTransform = GetComponentInChildren<Transform>();
 
@@ -67,7 +68,7 @@ public class CursorToTilemap : MonoBehaviour
         infoUI = FindFirstObjectByType<TileInfoUI>();
     }
 
-    
+
 
     private void Update()
     {
@@ -76,25 +77,25 @@ public class CursorToTilemap : MonoBehaviour
             return;
         }
 
-        Vector3 mousePosition =Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Vector3Int mousePos = Simplify(mousePosition);
         Vector3Int tilePos = placeholder.WorldToCell(mousePosition);
 
         //Highlight the tile the mouse is currently over
-        if (tilePos != currentTile && GM.isPlayerTurn && manager.getTileData(tilePos) != null )
+        if (tilePos != currentTile && GM.isPlayerTurn && manager.getTileData(tilePos) != null)
         {
             //take highlight off previous tile
             DeselectLast();
             //select new tile
             currentTile = tilePos;
 
-            if ((!holdingUnit && currAction == ActionType.None)  ||
+            if ((!holdingUnit && currAction == ActionType.None) ||
                 //for finding enemy tiles
                 (currAction == ActionType.Attack && CanMoveToTile(tilePos)) ||
                 //for finding plant tiles
                 ((currAction == ActionType.Farm || currAction == ActionType.Water || currAction == ActionType.Plant) && CanMoveToTile(tilePos)) ||
 
-                ( currAction == ActionType.None && CanMoveToTile(tilePos)))
+                (currAction == ActionType.None && CanMoveToTile(tilePos)))
             {
                 SelectCurrent(tilePos);
                 //offset for display map
@@ -119,7 +120,7 @@ public class CursorToTilemap : MonoBehaviour
             }
         }
 
-        
+
 
         //get the tile at the current mouse position
         //TileData unitCheck = manager.getTileData(tilePos);
@@ -137,8 +138,8 @@ public class CursorToTilemap : MonoBehaviour
         //}
 
         //show the movement locations
-        
-        
+
+
 
 
         //if (Input.GetKeyDown(KeyCode.Mouse1))
@@ -207,21 +208,21 @@ public class CursorToTilemap : MonoBehaviour
         TileData unitCheck = manager.getTileData(tilePos);
         //if a unit is selected
         //can place on self or empty spot
-        if ( ( unitCheck.occupant != null && tilePos == selectedUnit.GetGridPosition()) 
+        if ((unitCheck.occupant != null && tilePos == selectedUnit.GetGridPosition())
             || (unitCheck.occupant == null && selectedUnit != null && CanMoveToTile(tilePos)))
         {
 
             selectedUnit.moveToTile(tilePos);
             HideHoverUnit(selectedUnit);
-            
 
+            AnimalUnit animal = selectedUnit.GetComponent<AnimalUnit>();
             //feed the animal by paying it's cost if it isnt fed yet
-            if (selectedUnit.type == UnitType.Animal && !selectedUnit.isFed)
+            if (animal != null && !animal.isFed)
             {
-                GM.UseFeed(selectedUnit.feedNeed);
-                selectedUnit.isFed = true;
+                GM.UseFeed(animal.feedNeed);
+                animal.isFed = true;
             }
-            
+
             clearTiles();
             return true;
         }
@@ -268,14 +269,14 @@ public class CursorToTilemap : MonoBehaviour
                 selectedUnit = unitCheck.occupant;
                 if (tempUnit != null)
                 {
-                    
+
                     if (modifiedTiles.Count > 0 && !holdingUnit)
                     {
                         clearTiles();
                     }
-                    if (tempUnit.active && !holdingUnit)
+                    if (tempUnit.active && !holdingUnit || (tempUnit.isEnemy))
                     {
-                        modifiedTiles = manager.ShowMoveableTiles(location, tempUnit.moveAmt);
+                        modifiedTiles = manager.ShowMoveableTiles(location, tempUnit.getEffectiveMoveAmt());
                     }
                 }
             }
@@ -288,14 +289,19 @@ public class CursorToTilemap : MonoBehaviour
         Vector3Int mouseTile = getMouseTile();
         if (selectedUnit == null && !holdingUnit)
         {
-            
+
             SelectUnit(getMouseTile());
+
             //if the unit is an unfed animal, dont do anything
-            if (selectedUnit != null && !selectedUnit.isFed && selectedUnit.type == UnitType.Animal && !GM.CanFeedAnimal(selectedUnit.feedNeed))
+            if (selectedUnit != null)
             {
-                //dont do anything, you dont have feed for the animal
-                selectedUnit = null;
-                return;
+                AnimalUnit animal = selectedUnit.GetComponent<AnimalUnit>();
+                if (animal != null && !animal.isFed && !GM.CanFeedAnimal(animal.feedNeed))
+                {
+                    //dont do anything, you dont have feed for the animal
+                    selectedUnit = null;
+                    return;
+                }
             }
             PickUp();
         }
@@ -306,7 +312,7 @@ public class CursorToTilemap : MonoBehaviour
             if (enemy != null)
             {
                 //attack the enemy based on the selected unit
-                enemy.TakeDamage(selectedUnit.damage);
+                enemy.TakeDamage(selectedUnit.getEffectiveDamage());
             }
 
             if (enemy != null && enemy.GetHealth() > 0)
@@ -356,7 +362,7 @@ public class CursorToTilemap : MonoBehaviour
             }
         }
 
-        
+
 
         //after action is taken, deactivate the unit
         if (currAction != ActionType.None && CanMoveToTile(mouseTile))
@@ -373,8 +379,8 @@ public class CursorToTilemap : MonoBehaviour
         }
         GM.CheckEndState();
         GM.CheckAutoEndPlayerTurn();
-        
-        
+
+
     }
 
     public void HighlightNearbyEnemies()
@@ -430,8 +436,8 @@ public class CursorToTilemap : MonoBehaviour
         }
 
 
-        
-        
+
+
     }
 
     public void Deselect()
@@ -453,7 +459,7 @@ public class CursorToTilemap : MonoBehaviour
             Deselect();
         }
         infoUI.HideInfo();
-        
+
 
     }
 

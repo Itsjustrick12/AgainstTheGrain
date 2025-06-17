@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5653104019117772778}
   - component: {fileID: 2801985972184195381}
-  - component: {fileID: 4136796791350699099}
+  - component: {fileID: 5752154953070250117}
   m_Layer: 0
   m_Name: Cow
   m_TagString: Untagged
@@ -88,7 +88,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &4136796791350699099
+--- !u!114 &5752154953070250117
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -97,21 +97,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 3512800446918643081}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2845f8136cc3cbd49a2d650cf3e541e1, type: 3}
+  m_Script: {fileID: 11500000, guid: 8c766b9b28c9c9644bb44ba55bb7760a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   id: 3
-  maxAPs: 2
-  APs: 0
   active: 0
   sprite: {fileID: 0}
-  unitName: Chicken
+  unitName: Cow
   type: 3
   isEnemy: 0
   moveAmt: 3
-  desc: A chicken ready for battle
+  desc: A big ol heffer
   pos: {x: 0, y: 0, z: 0}
-  maxHealth: 5
+  health: 1
   damage: 3
   isFed: 0
-  feedNeed: 2
+  feedNeed: 3

@@ -1,6 +1,9 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
+using UnityEditor.Tilemaps;
+using JetBrains.Annotations;
+using UnityEditor.Rendering;
 
 //forces a sprite renderer
 
@@ -13,12 +16,9 @@ public enum UnitType{
 [RequireComponent(typeof(SpriteRenderer))]
 public class Unit : MonoBehaviour
 {
+    [Header("General Unit Settings")]
     //Base Class for all character units
     public int id;
-
-    //for interactions with the world
-    public int maxAPs = 2;
-    public int APs = 0;
 
     //for determining if all actions have been completed
     public bool active = false;
@@ -29,21 +29,26 @@ public class Unit : MonoBehaviour
     //Details about the unit
     public string unitName;
     public UnitType type;
-    public bool isEnemy;
-    public int moveAmt;
+    public bool isEnemy = false;
+    public int moveAmt = 1;
+    public string desc = "Put a description here!";
 
-    public string desc;
+    //Needed
+    [HideInInspector]
     public TileData tile;
+    [HideInInspector]
     public Vector3Int pos;
+    [SerializeField]
+    protected int health = 1;
+    [SerializeField]
+    protected int damage = 1;
 
-    public int maxHealth;
-    private int health;
-    public int damage;
+    //for buffs system
+    protected List<Buff> currentBuffs = new List<Buff>();
 
-    public bool isFed = false;
-    public int feedNeed = 1;
+    //for managing temporary state changes caused by other units
 
-    private TilemapManager manager;
+    protected TilemapManager manager;
 
     //Display information about the unit
     public void PrintInfo()
@@ -56,25 +61,29 @@ public class Unit : MonoBehaviour
     {
         manager = TilemapManager.instance;
         sprite = GetComponent<SpriteRenderer>();
-        
     }
 
     public void Start()
     {
         pos = GetGridPosition();
-        health = maxHealth;
-        Refresh();
+        onGameStart();
     }
 
-    public void Refresh()
+    public virtual void Refresh()
     {
+        //progress the buffs after the unit is used for the turn
+        CheckBuffs();
         //reset action points
-        APs = maxAPs;
         active = true;
         hideShade();
     }
 
-    public void Deactivate()
+    public void onGameStart()
+    {
+        Refresh();
+    }
+
+    public virtual void Deactivate()
     {
         showShade();
         active = false;
@@ -90,13 +99,16 @@ public class Unit : MonoBehaviour
         sprite.color = Color.white;
     }
 
-    public void moveToTile(Vector3Int position)
+    public virtual void moveToTile(Vector3Int position)
     {
         TileData newTile = manager.getTileData(position);
 
         if (newTile != null && newTile.GetOccupant() == null)
         {
-            tile.RemoveOccupant();
+            if (tile != null)
+            {
+                tile.RemoveOccupant();
+            }
             newTile.SetOccupant(this);
             tile = newTile;
             pos = position;
@@ -116,138 +128,19 @@ public class Unit : MonoBehaviour
         return returnVal;
     }
 
-    public Vector3Int MoveTowardsNearestUnit(bool isPlayerUnit)
-    {
-        if (!active)
-        {
-            return GetGridPosition();
-        }
-
-        TilemapManager manager = TilemapManager.instance;
-        //call several functions from the tilemap manager to determine where to move
-        //find the spot we are trying to move towards
-        pos = GetGridPosition();
-        Vector3Int idealTile = pos;
-        Vector3Int moveLocation = pos;
-
-        if (isPlayerUnit)
-        {
-            idealTile = manager.NearestPlayerUnit(pos);
-        }
-        else
-        {
-            //get a function for nearest enemy
-        }
-
-        //if there is nothing to move towards, return
-        if (idealTile == pos)
-        {
-            return GetGridPosition();
-        }
-
-        //get the all the valid tile locations for the unit
-        List<Vector3Int> validTiles = manager.GetMoveableTiles(pos, moveAmt);
-
-
-        //use similar method of finding ideal location
-        int closestYet = int.MaxValue;
-
-        //find the nearest valid tile to the location we found earlier
-        foreach (Vector3Int location in validTiles)
-        {
-            //check if the distance is closer than the closest found thus far
-            //distance between current valid tile, and the ideal unit position
-            int dist = manager.TileDistance(idealTile, location);
-            if (dist < closestYet)
-            {
-                closestYet = dist;
-                moveLocation = location;
-                //if found a spot adjacent to player unit, a closest tile has been found
-                if (dist == 1)
-                {
-                    break;
-                }
-
-            }
-        }
-
-        //determine whether or not to move if already 1 away
-        if (closestYet != 1 && manager.TileDistance(idealTile, pos) == 1)
-        {
-            //if not necessary to move, dont do it, return
-            return GetGridPosition();
-        }
-
-        return moveLocation;
-    }
-
-    //use for visual output for enemies
-    //highlights unit location and target location
-    public IEnumerator AnimatedMove()
-    {
-        //highlight tile
-
-        
-
-        Vector3Int moveTo = MoveTowardsNearestUnit(true);
-        manager = TilemapManager.instance;
-        manager.ShowReach(pos);
-        manager.ShowAvailable(moveTo);
-
-        yield return new WaitForSeconds(1f);
-
-        manager.HideInfo(pos);
-        manager.HideInfo(moveTo);
-        //perform the movement operation
-        moveToTile(moveTo);
-    }
-
-    public IEnumerator ProcessTurn()
-    {
-        if (!GameManager.instance.gameOver)
-        {
-
-            yield return StartCoroutine(AnimatedMove());
-
-            Vector3Int idealTile = manager.NearestPlayerUnit(pos);
-        
-            //if there is a nearby unit, attack it
-            if (manager.TileDistance(pos, idealTile) == 1)
-            {
-                //check for a unit at the ideal tile
-                TileData opponentTile = manager.getTileData(idealTile);
-                if (opponentTile.occupant != null)
-                {
-                    opponentTile.occupant.TakeDamage(damage);
-                }
-            }
-
-            Deactivate();
-
-            //check if the robots have won
-            yield return GameManager.instance.CheckEndState();
-        }
-    }
-
-    public void TakeDamage(int damage)
-    {
-        health = health - damage;
-        if (health <= 0)
-        {
-            KillUnit();
-        }
-    }
-
-    public void KillUnit()
+    public virtual void KillUnit()
     {
         //before destroying gameobject, remove unit from its matched tile
         pos = GetGridPosition();
 
         //remove self from owning tile
-        tile.RemoveOccupant();
+        if (tile != null)
+        {
+            tile.RemoveOccupant();
+        }
 
         //dont count the difference check if the killed unit is an unactive animal
-        int difference = (type != UnitType.Animal || isFed) ? 1 : 0;
+        int difference = 1;
 
         //check if end game state is reached based on this unit dying
         GameManager GM = GameManager.instance;
@@ -265,8 +158,90 @@ public class Unit : MonoBehaviour
         Destroy(this.gameObject);
     }
 
+    public void TakeDamage(int damage)
+    {
+        health = health - damage;
+        if (health <= 0)
+        {
+            KillUnit();
+        }
+    }
+
     public int GetHealth()
     {
         return health;
     }
+
+    public bool isUseableUnit()
+    {
+        return true;
+    }
+
+    public int getEffectiveMoveAmt()
+    {
+        int moveBuff = 0;
+        foreach (Buff buff in currentBuffs)
+        {
+            if (buff.type == BuffType.Movement)
+            {
+                moveBuff += buff.strength;
+            }
+        }
+
+        return moveBuff + moveAmt;
+    }
+
+    public int getEffectiveDamage()
+    {
+        int damageBuff = 0;
+        foreach (Buff buff in currentBuffs)
+        {
+            if (buff.type == BuffType.Damage)
+            {
+                damageBuff += buff.strength;
+            }
+        }
+
+        return damageBuff + damage;
+    }
+
+    //add a buff to the set of current buffs
+    public void buffUnit(Buff buff)
+    {
+        //add the buff to the current list of active buffs
+        currentBuffs.Add(buff);
+        //do something to add an indicator
+        Debug.Log("Buff added to " + unitName + " with name: " + buff.name + " and strength " + buff.strength);
+    }
+
+    public void CheckBuffs()
+    {
+        if (currentBuffs.Count <= 0)
+        {
+            return;
+        }
+
+        //use reverse for loop to traverse backwards for removals
+        for (int i = currentBuffs.Count-1; i >= 0; i--)
+        {
+            //update the timers on the buffs in the active buffs
+            currentBuffs[i].increment();
+            if (currentBuffs[i].isExpired())
+            {
+                currentBuffs.Remove(currentBuffs[i]);
+            }
+        }
+    }
+
+    public void ClearBuffByName(string buffName)
+    {
+        foreach(Buff buff in currentBuffs)
+        {
+            if (buff.name == buffName)
+            {
+                currentBuffs.Remove(buff);
+            }
+        }
+    }
+
 }

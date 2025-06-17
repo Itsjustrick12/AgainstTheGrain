@@ -1,8 +1,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.Tilemaps;
 using static UnityEngine.RuleTile.TilingRuleOutput;
 
@@ -558,13 +562,14 @@ public class TilemapManager : MonoBehaviour
         foreach (UnityEngine.Transform unit in container.transform)
         {
             Vector3Int pos = unit.GetComponent<Unit>().GetGridPosition();
-            int dist = TileDistance(start, pos);
-            //Debug.Log("Unit At: " + "[" + pos.x + "," +pos.y + "] is " + dist + " away!" );
+
+            //use pathfinding to determine the # of steps to reach a unit
+            List<Vector3Int> path = FindPath(start, pos);
             
             //if current unit is now the closest we've seen, keep track of its position
-            if (dist < closestYet)
+            if (path != null && path.Count < closestYet)
             {
-                closestYet = dist;
+                closestYet = path.Count;
                 nearestTile = pos;
             }
         }
@@ -572,6 +577,39 @@ public class TilemapManager : MonoBehaviour
         //Debug.Log("The closest unit is at position [" + nearestTile.x + "," + nearestTile.y + "] " + closestYet + " moves away!");
         return nearestTile;
     }
+
+    public List<Unit> getUnitsNearby(Vector3Int start, int distance, bool friendly)
+    {
+        List<Unit> units = new List<Unit>();
+
+        //get all the units in the vicinity
+        String containerName = "PlayerUnits";
+        if (!friendly)
+        {
+            containerName = "EnemyUnits";
+        }
+        foreach (UnityEngine.Transform child in GameObject.Find(containerName).transform)
+        {
+            //get the gameobject first, then a reference to the unit class
+            GameObject childObj = child.gameObject;
+
+            //get a reference to a unit if theres one there
+            Unit childUnit = childObj.GetComponent<Unit>();
+
+            if (childUnit != null)
+            {
+
+                if (TileDistance(start, childUnit.GetGridPosition()) <= distance && childUnit.isEnemy != friendly)
+                {
+                    units.Add(childUnit);
+                }
+            }
+        }
+
+        return units;
+
+    }
+
 
     //Needed for finding total distance based on grid movements needed
     public int TileDistance(Vector3Int start, Vector3Int finish)
@@ -597,6 +635,139 @@ public class TilemapManager : MonoBehaviour
     {
         infoMap.SetTile(position, reachTile);
     }
+
+    public void ShowImpassable(Vector3Int position)
+    {
+        infoMap.SetTile(position, impassable);
+    }
+
+//referenced from https://www.youtube.com/watch?v=i0x5fj4PqP4&ab_channel=Tarodev
+public List<Vector3Int> FindPath(Vector3Int start, Vector3Int target)
+    {
+        List<Vector3Int> toSearch = new List<Vector3Int>() { start };
+        Dictionary<Vector3Int, Vector3Int> cameFrom = new Dictionary<Vector3Int, Vector3Int>();
+
+        HashSet<Vector3Int> closed = new HashSet<Vector3Int>();
+
+        //used for assigning A* values
+        Dictionary<Vector3Int, int> gScore = new Dictionary<Vector3Int, int> { [start] = 0 };
+        Dictionary<Vector3Int, int> fScore = new Dictionary<Vector3Int, int> { [start] = TileDistance(start, target) };
+        //while there are still ndes to search
+        while (toSearch.Count > 0)
+        {
+            //start from the first node to search (on first iteration, will be start node)
+            Vector3Int current = toSearch[0];
+
+            //search for the lowest F value to expand past
+            foreach(Vector3Int pos in toSearch)
+            {
+                //If the key doesnt exist, keep pushing
+                if (!fScore.ContainsKey(pos)) continue;
+
+                //if the F is lower than the current or the distance is the same and the distance is smaller
+                if (fScore[pos] < fScore[current] || 
+                    (fScore[pos] == fScore[current] && TileDistance(pos, target) < TileDistance(current, target))
+                   )
+                {
+                    current = pos;
+                }
+            }
+
+            //if the current position is the target position make the path
+            if (current == target)
+            {
+                //make a list to store the path to the target at each position
+                List<Vector3Int> path = new List<Vector3Int>();
+                while (current != start)
+                {
+                    //add the point in the path
+                    path.Add(current);
+                    current = cameFrom[current];
+                }
+                //because points added from target to start, reverse for return value
+                path.Reverse();
+
+                //remove the end
+                //path.Remove(target);
+                //return the first ideal path found
+                return path;
+            }
+
+            //if not the target remove the current node
+            closed.Add(current);
+            toSearch.Remove(current);
+
+            //calculate scores for the walkable nearby tiles
+            foreach (Vector3Int neighbor in GetWalkableTilesNearby(current, target))
+            {
+                //increase the gScore for an additional tile
+                int tempG = gScore[current] + 1;
+                //if the neighbor tile hasn't been added to the dictionary yet or the score is lower add it to the search
+                if (!gScore.ContainsKey(neighbor) || tempG < gScore[neighbor])
+                {
+                    cameFrom[neighbor] = current;
+                    gScore[neighbor] = tempG;
+                    fScore[neighbor] = tempG + TileDistance(neighbor, target);
+
+                    if (!toSearch.Contains(neighbor))
+                    {
+                        //add the tile to the search list if not there already
+                        toSearch.Add(neighbor);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    //function for determining moveable tiles
+    public List<Vector3Int> GetWalkableTilesNearby(Vector3Int pos, Vector3Int target)
+    {
+        List<Vector3Int> walkable = new List<Vector3Int>();
+
+        foreach (Vector3Int dir in DIRECTIONS)
+        {
+            Vector3Int neighbor = pos + dir;
+            if (neighbor == target || CanWalk(neighbor))
+            {
+                walkable.Add(neighbor);
+            }
+        }
+
+        return walkable;
+    }
+
+
+    public bool CanWalk(Vector3Int pos)
+    {
+        TileData data = getTileData(pos);
+        if (data != null)
+        {
+            if (data.occupant == null && data.canWalk)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //public Vector3Int closestAdjacentTile(Vector3Int start, Vector3Int target)
+    //{
+    //    List<Vector3Int> adjacentTiles = new List<Vector3Int>();
+    //    foreach (Vector3Int dir in DIRECTIONS)
+    //    {
+    //        if (CanWalk(target + dir))
+    //        {
+    //            adjacentTiles.Add(target + dir);
+    //        }
+    //    }
+
+    //    //find the closest one to the starting point
+    //    foreach (Vector3Int tile in adjacentTiles)
+    //    {
+    //        int distance = TileDistance()
+    //    }
+    //}
 
     public List<Tuple<Vector3Int, bool>> GetEnemiesNearby(Vector3Int position, bool showTile)
     {
@@ -684,4 +855,6 @@ public class TilemapManager : MonoBehaviour
         }
         return valid;
     }
+
+    
 }

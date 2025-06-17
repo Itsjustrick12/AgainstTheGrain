@@ -10,9 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 5653104019117772778}
   - component: {fileID: 2801985972184195381}
-  - component: {fileID: 4136796791350699099}
+  - component: {fileID: -3251382501328879507}
   m_Layer: 0
-  m_Name: Chicken Unit
+  m_Name: SheepDog
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -77,7 +77,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 3
-  m_Sprite: {fileID: 21300000, guid: 1b8128a70d43e024caa2088d10ac0f7a, type: 3}
+  m_Sprite: {fileID: 1344052695619800917, guid: f80fb48e19f53c049b8b99fadcaab612, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -88,7 +88,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &4136796791350699099
+--- !u!114 &-3251382501328879507
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -97,19 +97,25 @@ MonoBehaviour:
   m_GameObject: {fileID: 3512800446918643081}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2845f8136cc3cbd49a2d650cf3e541e1, type: 3}
+  m_Script: {fileID: 11500000, guid: 8872752b8b88abc45b70bd93de7ccd37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  id: 3
-  maxAPs: 2
-  APs: 0
+  id: 0
   active: 0
   sprite: {fileID: 0}
-  unitName: Chicken
+  unitName: SheepDog
   type: 3
   isEnemy: 0
-  moveAmt: 5
-  desc: A chicken ready for battle
+  moveAmt: 4
+  desc: Man's best friend!
   pos: {x: 0, y: 0, z: 0}
-  maxHealth: 2
-  damage: 1
+  health: 3
+  damage: 2
+  isFed: 1
+  feedNeed: 2
+  moveIncrease: 3
+  range: 3
+  durationAmt: 1
+  buffName: SheepDog
+  downSprite: {fileID: 2269055099296615711, guid: 3d9d30d81c7612f43a1c5cae98ab2172, type: 3}
+  upSprite: {fileID: -5632141146059574568, guid: 3d9d30d81c7612f43a1c5cae98ab2172, type: 3}

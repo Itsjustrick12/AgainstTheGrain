@@ -25,7 +25,23 @@ public class TileInfoUI : MonoBehaviour
         healthText.text = unit.GetHealth().ToString();
         unitSprite.sprite = unit.sprite.sprite;
 
-        if (unit.type == UnitType.Animal && !unit.isFed)
+        
+        HealthAmountUI.SetActive(true);
+        UnfedUI.SetActive(false);
+        
+
+        UnitPictureUI.SetActive(true);
+        
+        CropStageUI.SetActive(false);
+        CropTextUI.SetActive(false);
+    }
+
+    public void DisplayUnitInfo(AnimalUnit unit)
+    {
+
+        healthText.text = unit.GetHealth().ToString();
+        unitSprite.sprite = unit.sprite.sprite;
+        if (!unit.isFed)
         {
             UnfedUI.SetActive(true);
             HealthAmountUI.SetActive(false);
@@ -35,9 +51,7 @@ public class TileInfoUI : MonoBehaviour
             HealthAmountUI.SetActive(true);
             UnfedUI.SetActive(false);
         }
-
-            UnitPictureUI.SetActive(true);
-        
+        UnitPictureUI.SetActive(true);
         CropStageUI.SetActive(false);
         CropTextUI.SetActive(false);
     }
