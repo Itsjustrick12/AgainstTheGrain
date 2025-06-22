@@ -49,9 +49,18 @@ public class SheepDog : AnimalUnit
     //reset the current units movement capability
     private void clearBuff()
     {
+        if (animalsNearby.Count <= 0)
+        {
+            return;
+        }
+
         foreach (AnimalUnit animal in animalsNearby)
         {
-            animal.ClearBuffByName(buffName);
+            if (animal != this)
+            {
+                animal.ClearBuffByName(buffName);
+            }
+
         }
     }
 
@@ -81,7 +90,7 @@ public class SheepDog : AnimalUnit
         foreach (Unit unit in units)
         {
             AnimalUnit animal = unit.GetComponent<AnimalUnit>();
-            if (animal != null)
+            if (animal != null && animal != this)
             {
                 //apply buff to the animal
                 animalsNearby.Add(animal);

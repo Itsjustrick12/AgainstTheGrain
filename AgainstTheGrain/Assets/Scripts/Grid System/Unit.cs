@@ -1,9 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Collections;
-using UnityEditor.Tilemaps;
-using JetBrains.Annotations;
-using UnityEditor.Rendering;
 
 //forces a sprite renderer
 
@@ -235,7 +231,12 @@ public class Unit : MonoBehaviour
 
     public void ClearBuffByName(string buffName)
     {
-        foreach(Buff buff in currentBuffs)
+        if (currentBuffs.Count <= 0)
+        {
+            return;
+        }
+
+        foreach (Buff buff in currentBuffs)
         {
             if (buff.name == buffName)
             {

@@ -13,7 +13,9 @@ public enum ActionType
     Wait,
     Plant,
     Water,
-    Farm
+    Farm,
+    EndTurn,
+    Cancel
 }
 
 public class CursorToTilemap : MonoBehaviour
@@ -29,18 +31,19 @@ public class CursorToTilemap : MonoBehaviour
     private Vector3Int currentTile;
     private List<Tuple<Vector3Int, bool>> modifiedTiles;
 
+
     SpriteRenderer hoverSprite;
     public Transform hoverTransform;
     public Vector3Int fromTile;
 
+    //For determining what unit performs the action / display data
     private Unit selectedUnit;
     public bool holdingUnit = false;
-
-    //[SerializeField] public GameObject chickenPrefab;
 
     GameManager GM;
     CropManager cropManager;
 
+    //For Navigating and recieving input from on screen UI
     public PlayerOptions optionsMenu;
     public bool makingDecision = false;
     ActionType currAction = ActionType.None;
@@ -119,83 +122,10 @@ public class CursorToTilemap : MonoBehaviour
                 infoUI.HideInfo();
             }
         }
-
-
-
-        //get the tile at the current mouse position
-        //TileData unitCheck = manager.getTileData(tilePos);
-
-        //if (Input.GetKeyDown(KeyCode.Mouse0))
-        //{
-        //    TileData temp = manager.getTileData(tilePos);
-        //    if (temp != null) {
-        //        Debug.Log("This is tile: [" + tilePos.x + "," + tilePos.y + "]");
-        //        temp.PrintDetails();
-        //    }
-        //    else
-        //    {
-        //        Debug.Log("No Tile Here");            }
-        //}
-
-        //show the movement locations
-
-
-
-
-        //if (Input.GetKeyDown(KeyCode.Mouse1))
-        //{
-        //    if (holdingUnit)
-        //    {
-        //        if (CanMoveToTile(tilePos))
-        //        {
-        //            Debug.Log("Can move to tile");
-        //        }
-        //        else
-        //        {
-        //            Debug.Log("Cannot go there");
-        //        }
-        //        return;
-        //    }
-
-        //    TileData temp = manager.getTileData(tilePos);
-        //    if (temp.GetOccupant() == null)
-        //    {
-        //        GameManager.instance.SpawnUnitAtPos(chickenPrefab, tilePos);
-
-        //    }
-        //}
-
-        //if (Input.GetKeyDown(KeyCode.Alpha5))
-        //{
-
-
-        //    manager.ToggleUnwalkable(tilePos);
-        //}
-
-        //if (Input.GetKey(KeyCode.Alpha1))
-        //{
-        //    manager.SetTile(mousePos, manager.dirtTile);
-        //}
-        //else if (Input.GetKey(KeyCode.Alpha2))
-        //{
-        //    manager.SetTile(mousePos, manager.grassTile);
-        //}
-        //else if (Input.GetKey(KeyCode.Alpha3))
-        //{
-        //    manager.SetTile(mousePos, manager.soilTile);
-        //}
-        //else if (Input.GetKeyDown(KeyCode.Alpha4))
-        //{
-        //    manager.ToggleUnwalkable(mousePos);
-        //}
-        //if (Input.GetKeyDown(KeyCode.F))
-        //{
-        //    TilemapManager.instance.NearestPlayerUnit(tilePos);
-        //}
-
     }
 
     //chopped up from initial movement logic, split into two steps
+    //used when object is selected
     //used when object is selected
     //bool represents successful placement
     public bool PlaceDown()
@@ -206,6 +136,7 @@ public class CursorToTilemap : MonoBehaviour
 
         //get the tile at the current mouse position
         TileData unitCheck = manager.getTileData(tilePos);
+        
         //if a unit is selected
         //can place on self or empty spot
         if ((unitCheck.occupant != null && tilePos == selectedUnit.GetGridPosition())
@@ -257,27 +188,34 @@ public class CursorToTilemap : MonoBehaviour
 
     }
 
-    public void SelectUnit(Vector3Int location)
+    public void SelectTile(Vector3Int location)
     {
-
+        Debug.Log("Call to select unit");
         TileData unitCheck = manager.getTileData(location);
         if (unitCheck != null)
         {
-            Unit tempUnit = unitCheck.occupant;
             if (GM.isPlayerTurn)
             {
-                selectedUnit = unitCheck.occupant;
+                Unit tempUnit = unitCheck.occupant;
                 if (tempUnit != null)
                 {
-
+                    //set the selected unit
+                    selectedUnit = unitCheck.occupant;
+                    //clear previous tiles
                     if (modifiedTiles.Count > 0 && !holdingUnit)
                     {
                         clearTiles();
                     }
                     if (tempUnit.active && !holdingUnit || (tempUnit.isEnemy))
                     {
+                        //get the visible options for where the unit can move
                         modifiedTiles = manager.ShowMoveableTiles(location, tempUnit.getEffectiveMoveAmt());
                     }
+                }
+                else
+                {
+                    //show the default options menu
+                    optionsMenu.ShowOptions(location);
                 }
             }
         }
@@ -285,12 +223,19 @@ public class CursorToTilemap : MonoBehaviour
 
     public void HandleSelect(InputAction.CallbackContext a)
     {
+        if (makingDecision)
+        {
+            return; 
+        }
 
         Vector3Int mouseTile = getMouseTile();
+
+        //if not selecting anything currently, try to select a unit or tile
         if (selectedUnit == null && !holdingUnit)
         {
 
-            SelectUnit(getMouseTile());
+            //handle the logic for determing what to do if a tile is selected
+            SelectTile(getMouseTile());
 
             //if the unit is an unfed animal, dont do anything
             if (selectedUnit != null)
@@ -345,17 +290,12 @@ public class CursorToTilemap : MonoBehaviour
             //plant a new crop
             cropManager.PlantCropOnTile(mouseTile);
         }
+        //If holding the unit, place it if possible
         else if (holdingUnit)
         {
             Unit temp = selectedUnit;
 
-            if (!PlaceDown())
-            {
-                HideHoverUnit(selectedUnit);
-                //deselect the unit
-                Deselect();
-            }
-            else
+            if (PlaceDown())
             {
                 //display the options panel and have the player decide their action
                 optionsMenu.ShowOptions(temp.GetGridPosition(), temp);
@@ -365,7 +305,7 @@ public class CursorToTilemap : MonoBehaviour
 
 
         //after action is taken, deactivate the unit
-        if (currAction != ActionType.None && CanMoveToTile(mouseTile))
+        if (currAction != ActionType.None && currAction != ActionType.Cancel && CanMoveToTile(mouseTile))
         {
             //clear the highlight tiles
             clearTiles();
@@ -403,7 +343,12 @@ public class CursorToTilemap : MonoBehaviour
     {
         makingDecision = false;
 
-        if (action == ActionType.Attack)
+        //end turn
+        if (action == ActionType.EndTurn)
+        {
+            GM.EndPlayerTurn();
+        }
+        else if (action == ActionType.Attack)
         {
             HighlightNearbyEnemies();
             currAction = ActionType.Attack;
@@ -434,10 +379,17 @@ public class CursorToTilemap : MonoBehaviour
             }
             selectedUnit = null;
         }
-
-
-
-
+        //cancel state
+        else if (action == ActionType.Cancel)
+        {
+            //move back to tile if moving
+            if (fromTile != null && selectedUnit != null)
+            {
+                Debug.Log("Move the unit back to " + fromTile.x + " " + fromTile.y);
+                selectedUnit.moveToTile(fromTile);
+                putUnitBack();
+            }
+        }
     }
 
     public void Deselect()
@@ -449,18 +401,49 @@ public class CursorToTilemap : MonoBehaviour
 
     public void HandleDeselect(InputAction.CallbackContext a)
     {
-        if (currAction == ActionType.None)
+        if (currAction == ActionType.None && !makingDecision)
         {
-
-            if (holdingUnit)
-            {
-                HideHoverUnit(selectedUnit);
-            }
-            Deselect();
+            putUnitBack();
+            infoUI.HideInfo();
         }
-        infoUI.HideInfo();
+        else
+        {
+            if (selectedUnit != null && !makingDecision)
+            {
+                //hide the info map
+                clearTiles();
+
+                //select the units's current position to prevent bugs
+                hover.SetTile(currentTile, null);
+                SelectCurrent(selectedUnit.GetGridPosition());
 
 
+                //repick from position
+                makingDecision = true;
+                currAction = ActionType.None;
+                optionsMenu.ShowOptions(selectedUnit.GetGridPosition(), selectedUnit);
+            }
+            else if (selectedUnit != null){
+                //auto select cancel if back is pressed
+                optionsMenu.HideOptions();
+                HandleAction(ActionType.Cancel);
+            }
+            else if (selectedUnit == null && makingDecision)
+            {
+                //hide if in the auxilary menu not selecting a unit
+                makingDecision = false;
+                optionsMenu.HideOptions();
+            }
+        }
+    }
+
+    public void putUnitBack()
+    {
+        if (holdingUnit)
+        {
+            HideHoverUnit(selectedUnit);
+        }
+        Deselect();
     }
 
     public Vector3Int getMouseTile()
@@ -483,15 +466,11 @@ public class CursorToTilemap : MonoBehaviour
             //get the tile at the current mouse position
             optionsMenu.ShowOptions(tilePos, temp);
         }
-
-
     }
-
 
     //Needed for restricting movement of unit to only availible tiles
     private bool CanMoveToTile(Vector3Int tile)
     {
-        
         Tuple<Vector3Int, bool> temp = new Tuple<Vector3Int, bool>(tile, true);
         return modifiedTiles.Contains(temp);
     }
@@ -508,8 +487,6 @@ public class CursorToTilemap : MonoBehaviour
         if (placeholder.HasTile(curr))
         {
             hover.SetTile(curr, hoverTile);
-            Unit temp = manager.getTileData(curr).occupant;
-            
         }
     }
 

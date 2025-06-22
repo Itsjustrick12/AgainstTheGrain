@@ -33,6 +33,9 @@ public class GameManager : MonoBehaviour
     public GameObject defeatScreen;
     public bool paused = false;
 
+    //for displaying the harvested crop count
+    WheatCountUI cropCountUI;
+
     public ATGInput inputActions;
 
     private void Awake()
@@ -58,6 +61,9 @@ public class GameManager : MonoBehaviour
         inputManager = FindFirstObjectByType<CursorToTilemap>();
         cropManager = FindFirstObjectByType<CropManager>();
         StartPlayerTurn();
+        //get the crop ui from the scene
+        cropCountUI = FindFirstObjectByType<WheatCountUI>();
+        cropCountUI.updateUICount(feedCount);
     }
 
     private IEnumerator StartComputerTurn()
@@ -294,11 +300,13 @@ public class GameManager : MonoBehaviour
     public void AddFeed(int amt)
     {
         feedCount += amt;
+        cropCountUI.updateUICount(feedCount);
     }
 
     public void UseFeed(int amt)
     {
         feedCount -= amt;
+        cropCountUI.updateUICount(feedCount);
     }
 
     public void PauseGame()
@@ -306,6 +314,8 @@ public class GameManager : MonoBehaviour
         pauseMenu.SetActive(true);
         Time.timeScale = 0;
         paused = true;
+
+        inputManager.gameObject.SetActive(false);
     }
 
     public void UnPauseGame()
@@ -313,6 +323,7 @@ public class GameManager : MonoBehaviour
         pauseMenu.SetActive(false);
         Time.timeScale = 1;
         paused = false;
+        inputManager.gameObject.SetActive(true);
     }
 
     public void ShowDefeatScreen()
@@ -323,6 +334,7 @@ public class GameManager : MonoBehaviour
         pauseMenu.SetActive(false);
         Time.timeScale = 0;
         paused = true;
+        inputManager.gameObject.SetActive(false);
     }
 
     public void ShowVictoryScreen()
@@ -333,6 +345,7 @@ public class GameManager : MonoBehaviour
         pauseMenu.SetActive(false);
         Time.timeScale = 0;
         paused = true;
+        inputManager.gameObject.SetActive(false);
     }
 
     private void TogglePause(InputAction.CallbackContext a)
@@ -352,6 +365,25 @@ public class GameManager : MonoBehaviour
     }
 
     public void EndPlayerTurn(InputAction.CallbackContext a)
+    {
+        isPlayerTurn = false;
+        foreach (Transform child in playerUnits.transform)
+        {
+            //get the gameobject first, then a reference to the unit class
+            GameObject childObj = child.gameObject;
+
+            //deactivate every unit
+            Unit childUnit = childObj.GetComponent<Unit>();
+
+            if (childUnit != false)
+            {
+                childUnit.Deactivate();
+            }
+        }
+        StartCoroutine(StartComputerTurn());
+    }
+
+    public void EndPlayerTurn()
     {
         isPlayerTurn = false;
         foreach (Transform child in playerUnits.transform)

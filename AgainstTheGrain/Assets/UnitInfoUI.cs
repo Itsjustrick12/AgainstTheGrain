@@ -22,6 +22,13 @@ public class TileInfoUI : MonoBehaviour
     public void DisplayUnitInfo(Unit unit)
     {
 
+        AnimalUnit animal = unit.GetComponent<AnimalUnit>();
+        if (animal != null)
+        {
+            DisplayUnitInfo(animal);
+            return;
+        }
+
         healthText.text = unit.GetHealth().ToString();
         unitSprite.sprite = unit.sprite.sprite;
 

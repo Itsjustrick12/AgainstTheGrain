@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEditor.U2D.Aseprite;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -124,6 +125,42 @@ public class PlayerOptions : MonoBehaviour
         GetComponent<RectTransform>().anchoredPosition = newPosition + tileOffset;
     }
 
+    //called for displaying generic options from when nothing is selected
+    public void ShowOptions(Vector3Int tileLocation)
+    {
+        gameObject.SetActive(true);
+
+        //only show buttons with fufilled conidtions
+        //ex dont show attack if nothing to attack
+        selectedChoice = 0;
+        actionLocation = tileLocation;
+
+        //indicate the decision is being made
+        inputManager.makingDecision = true;
+
+        //used for showing the all buttons not the unit actions
+        DetermineDefaults();
+
+        //initalize the navigation
+        numChoices = optionList.Count;
+        SelectButton();
+
+
+        //place the menu next to the current tile
+        Vector2 newPosition;
+        Vector3 tilePosition = tileManger.placeholderMap.CellToWorld(tileLocation);
+        Vector2 screenPos = Camera.main.WorldToScreenPoint(tilePosition);
+        Vector2 tileOffset = new Vector2(offsetX, offsetY);
+
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                uiCanvas.transform as RectTransform,
+                screenPos,
+                uiCanvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : uiCanvas.worldCamera,
+                out newPosition);
+
+        GetComponent<RectTransform>().anchoredPosition = newPosition + tileOffset;
+    }
+
     public void ReportAction()
     {
         ActionType type = optionList[selectedChoice].GetComponent<OptionBox>().action;
@@ -144,6 +181,33 @@ public class PlayerOptions : MonoBehaviour
         }
         optionList = temp;
         EventSystem.current.SetSelectedGameObject(null);
+    }
+
+    //Only show details based options and the end turn button when no unit is selected
+    public void DetermineDefaults()
+    {
+        PopulateOptions();
+
+        tileManger = TilemapManager.instance;
+        foreach (OptionBox box in optionList)
+        {
+            //do checks to see if the button should be hidden
+            bool active = true;
+
+            ActionType type = box.action;
+
+            //show the end turn button
+            if (type != ActionType.EndTurn && type != ActionType.Cancel)
+            {
+                active = false;
+            }
+
+            //update the gameobject to show or not show
+            box.gameObject.SetActive(active);
+        }
+
+        //update the options list to only have active options
+        optionList = optionList.FindAll(op => op.gameObject.activeSelf);
     }
 
     //hide any buttons that have actions that cant be taken
@@ -178,9 +242,10 @@ public class PlayerOptions : MonoBehaviour
             {
                 active = false;
             }
-            else if (type == ActionType.Wait)
+            else if (type == ActionType.None || type == ActionType.EndTurn)
             {
-                active = true;
+                //hide UI buttons
+                active = false;
             }
 
             //disable certain options based on unit type
@@ -188,8 +253,9 @@ public class PlayerOptions : MonoBehaviour
             {
                 active = false;
             }
-            else if ((playerType == UnitType.Animal || playerType == UnitType.Animal) 
-                && ((type == ActionType.Plant || type == ActionType.Water || type == ActionType.Farm))){
+            else if ((playerType == UnitType.Animal || playerType == UnitType.Animal)
+                && ((type == ActionType.Plant || type == ActionType.Water || type == ActionType.Farm)))
+            {
                 active = false;
             }
 
