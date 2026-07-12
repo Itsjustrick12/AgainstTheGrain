@@ -3887,7 +3887,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8181748000542078715, guid: 4cd7f8ad26ede69409fc385d6da64957, type: 3}
       propertyPath: m_text
-      value: CREDITS
+      value: NEXT
       objectReference: {fileID: 0}
     - target: {fileID: 8185876842380814470, guid: 4cd7f8ad26ede69409fc385d6da64957, type: 3}
       propertyPath: feedButton

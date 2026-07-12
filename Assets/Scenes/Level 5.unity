@@ -4779,7 +4779,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4432311807043391356, guid: 4cd7f8ad26ede69409fc385d6da64957, type: 3}
       propertyPath: entityIDs.Array.size
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 4432311807043391356, guid: 4cd7f8ad26ede69409fc385d6da64957, type: 3}
       propertyPath: 'cropIDs.Array.data[1]'
@@ -4796,6 +4796,10 @@ PrefabInstance:
     - target: {fileID: 4432311807043391356, guid: 4cd7f8ad26ede69409fc385d6da64957, type: 3}
       propertyPath: 'entityIDs.Array.data[1]'
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4432311807043391356, guid: 4cd7f8ad26ede69409fc385d6da64957, type: 3}
+      propertyPath: 'entityIDs.Array.data[2]'
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 4745311966347517567, guid: 4cd7f8ad26ede69409fc385d6da64957, type: 3}
       propertyPath: m_Name
@@ -4928,6 +4932,14 @@ PrefabInstance:
     - target: {fileID: 6350861752162724504, guid: 4cd7f8ad26ede69409fc385d6da64957, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6566888915540385955, guid: 4cd7f8ad26ede69409fc385d6da64957, type: 3}
+      propertyPath: animalList.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6566888915540385955, guid: 4cd7f8ad26ede69409fc385d6da64957, type: 3}
+      propertyPath: 'animalList.Array.data[2]'
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 7059279364698356282, guid: 4cd7f8ad26ede69409fc385d6da64957, type: 3}
       propertyPath: m_AnchorMax.y

@@ -1,31 +1,7 @@
 fileFormatVersion: 2
-guid: 9c01da688d3b7a24aaa972325b0417ef
+guid: fb8a82cd2655be04f967d00bdf0171dc
 TextureImporter:
-  internalIDToNameTable:
-  - first:
-      213: 2839067959633205312
-    second: drone_walk_up_0
-  - first:
-      213: 3253083441414313834
-    second: drone_walk_up_1
-  - first:
-      213: -741036704027482196
-    second: drone_walk_up_2
-  - first:
-      213: 305413018319281873
-    second: drone_walk_up_3
-  - first:
-      213: 6695872233149564220
-    second: drone_walk_up_4
-  - first:
-      213: -8412845738936120009
-    second: drone_walk_up_5
-  - first:
-      213: -4809601935426613762
-    second: drone_walk_up_6
-  - first:
-      213: -28781266377671732
-    second: drone_walk_up_7
+  internalIDToNameTable: []
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -134,12 +110,12 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: drone_walk_up_0
+      name: ram_attackNew_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 32
+        width: 64
         height: 64
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -147,43 +123,21 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 048512b6445666720800000000000000
-      internalID: 2839067959633205312
+      spriteID: 8f8578d81cce9477091f93c3fffc06f4
+      internalID: 1006769646
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: drone_walk_up_1
-      rect:
-        serializedVersion: 2
-        x: 32
-        y: 0
-        width: 32
-        height: 64
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: a6794368726452d20800000000000000
-      internalID: 3253083441414313834
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: drone_walk_up_2
+      name: ram_attackNew_1
       rect:
         serializedVersion: 2
         x: 64
         y: 0
-        width: 32
+        width: 64
         height: 64
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -191,43 +145,21 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: ca76aea3b0f47b5f0800000000000000
-      internalID: -741036704027482196
+      spriteID: 2a2a9e017374d4eb4b6c8812a6168f4f
+      internalID: -967685613
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: drone_walk_up_3
-      rect:
-        serializedVersion: 2
-        x: 96
-        y: 0
-        width: 32
-        height: 64
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 1de53b2a58b0d3400800000000000000
-      internalID: 305413018319281873
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: drone_walk_up_4
+      name: ram_attackNew_2
       rect:
         serializedVersion: 2
         x: 128
         y: 0
-        width: 32
+        width: 64
         height: 64
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -235,43 +167,21 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: c35084ed1548cec50800000000000000
-      internalID: 6695872233149564220
+      spriteID: c97d94765d6a34878a17d266b7212073
+      internalID: 1117187730
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: drone_walk_up_5
-      rect:
-        serializedVersion: 2
-        x: 160
-        y: 0
-        width: 32
-        height: 64
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 73dcd84af519f3b80800000000000000
-      internalID: -8412845738936120009
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: drone_walk_up_6
+      name: ram_attackNew_3
       rect:
         serializedVersion: 2
         x: 192
         y: 0
-        width: 32
+        width: 64
         height: 64
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -279,21 +189,21 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: efd8dd7a58cd04db0800000000000000
-      internalID: -4809601935426613762
+      spriteID: 2c9086470ff8f45469fc53e369d6cfbf
+      internalID: 1348166322
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: drone_walk_up_7
+      name: ram_attackNew_4
       rect:
         serializedVersion: 2
-        x: 224
+        x: 256
         y: 0
-        width: 32
+        width: 64
         height: 64
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -301,10 +211,142 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: ccb7f59379fb99ff0800000000000000
-      internalID: -28781266377671732
+      spriteID: 500a067a7cbd549bdb5247b5bcba8e6d
+      internalID: 1441530652
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ram_attackNew_5
+      rect:
+        serializedVersion: 2
+        x: 320
+        y: 0
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 98ddd21b9458540a9a3d1e98fca719a9
+      internalID: 1080977198
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ram_attackNew_6
+      rect:
+        serializedVersion: 2
+        x: 384
+        y: 0
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b6198d0d9b80c4f918bc5771daa58999
+      internalID: -881234050
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ram_attackNew_7
+      rect:
+        serializedVersion: 2
+        x: 448
+        y: 0
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f558c39b5bd4f4f97a75b92714905cd9
+      internalID: -614925644
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ram_attackNew_8
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 0
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 54c10b90574e54b268676bf932677e80
+      internalID: -116632103
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ram_attackNew_9
+      rect:
+        serializedVersion: 2
+        x: 576
+        y: 0
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 09f43bd9aba2e4c0c90133a459a4ef72
+      internalID: 883398643
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ram_attackNew_10
+      rect:
+        serializedVersion: 2
+        x: 640
+        y: 0
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: affb054c7b9da474285fbaecfc36d591
+      internalID: 566188328
       vertices: []
       indices: 
       edges: []
@@ -313,7 +355,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 9b871a065b00cc94db439a1494904a97
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
@@ -323,16 +365,19 @@ TextureImporter:
     spriteCustomMetadata:
       entries:
       - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":32.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      drone_walk_up_0: 2839067959633205312
-      drone_walk_up_1: 3253083441414313834
-      drone_walk_up_2: -741036704027482196
-      drone_walk_up_3: 305413018319281873
-      drone_walk_up_4: 6695872233149564220
-      drone_walk_up_5: -8412845738936120009
-      drone_walk_up_6: -4809601935426613762
-      drone_walk_up_7: -28781266377671732
+      ram_attackNew_0: 1006769646
+      ram_attackNew_1: -967685613
+      ram_attackNew_10: 566188328
+      ram_attackNew_2: 1117187730
+      ram_attackNew_3: 1348166322
+      ram_attackNew_4: 1441530652
+      ram_attackNew_5: 1080977198
+      ram_attackNew_6: -881234050
+      ram_attackNew_7: -614925644
+      ram_attackNew_8: -116632103
+      ram_attackNew_9: 883398643
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

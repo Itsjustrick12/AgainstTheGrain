@@ -929,30 +929,33 @@ public class UnitInteractionSystem : TileCursor
     {
         foreach (Vector3Int pos in locations)
         {
-            if (tileManager.GetTileDataAt(pos).HasEnemyUnit())
+            if(tileManager.GetTileDataAt(pos) != null)
             {
-                extensionsMap.SetTile(pos, GetExtensionTile(TileColor.Red));
-            }//if the tile has a crop
-            else if (tileManager.GetTileDataAt(pos).GetOccupyingEntity() as Crop != null)
-            {
-                Crop cropCheck = tileManager.GetTileDataAt(pos).GetOccupyingEntity() as Crop;
-                //if the crop is ready to be harvested
-                if (cropCheck.CanBeHarvested())
+                if (tileManager.GetTileDataAt(pos).HasEnemyUnit())
                 {
-                    extensionsMap.SetTile(pos, GetExtensionTile(TileColor.Yellow));
-                }//if the tile is not ready to be harvested and needs to be watered
-                else if (!cropCheck.CanBeHarvested() && !cropCheck.IsWatered())
+                    extensionsMap.SetTile(pos, GetExtensionTile(TileColor.Red));
+                }//if the tile has a crop
+                else if (tileManager.GetTileDataAt(pos).GetOccupyingEntity() as Crop != null)
                 {
-                    extensionsMap.SetTile(pos, GetExtensionTile(TileColor.Blue));
+                    Crop cropCheck = tileManager.GetTileDataAt(pos).GetOccupyingEntity() as Crop;
+                    //if the crop is ready to be harvested
+                    if (cropCheck.CanBeHarvested())
+                    {
+                        extensionsMap.SetTile(pos, GetExtensionTile(TileColor.Yellow));
+                    }//if the tile is not ready to be harvested and needs to be watered
+                    else if (!cropCheck.CanBeHarvested() && !cropCheck.IsWatered())
+                    {
+                        extensionsMap.SetTile(pos, GetExtensionTile(TileColor.Blue));
+                    }
                 }
-            }
-            else if(tileManager.GetTileDataAt(pos).GetOccupyingEntity() == null && currAction.GetName() == "Plant")
-            {
-                extensionsMap.SetTile(pos, GetExtensionTile(TileColor.Green));
-            }
-            else
-            {
-                extensionsMap.SetTile(pos, GetExtensionTile(TileColor.White));
+                else if(tileManager.GetTileDataAt(pos).GetOccupyingEntity() == null && currAction.GetName() == "Plant")
+                {
+                    extensionsMap.SetTile(pos, GetExtensionTile(TileColor.Green));
+                }
+                else
+                {
+                    extensionsMap.SetTile(pos, GetExtensionTile(TileColor.White));
+                }
             }
         }
     }
@@ -1003,6 +1006,11 @@ public class UnitInteractionSystem : TileCursor
     // If there is, open the feed picker and switch state
     private void TryFeedAtPosition(Vector3Int pos)
     {
+
+        if(tileManager.GetTileDataAt(pos) == null)
+        {
+            return;
+        }
         Entity entity = tileManager.GetTileDataAt(pos)?.GetOccupyingEntity();
         Unit unit = entity as Unit;
 
@@ -1180,6 +1188,7 @@ public class UnitInteractionSystem : TileCursor
                 tile = GetExtensionTile(TileColor.White);
             }
             //draw the tile
+
             optionsMap.SetTile(paintLocation, tile);
         }
     }

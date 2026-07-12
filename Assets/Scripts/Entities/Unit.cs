@@ -701,6 +701,7 @@ public class Unit : Entity
         //logic for ram knockback
         if(takeDamage && otherUnit.ID == 10)
         {
+            //ShowNumber(5, otherUnit.GetGridPos(), distance);
             this.TakeDamage(5, otherUnit.GetGridPos());
         }
     }
