@@ -288,4 +288,12 @@ public class EntityAction : ScriptableObject
     public virtual bool Action(TileData tileData){return false;}
     //actually preforms the Action on the tile
     public virtual void PerformAt(TileData tileData){}
+    //Gets the direction from current caster to target (unit vector)
+    protected Vector3Int GetDirection(Entity entity, Vector3Int targetTile)
+    {
+        Vector3Int delta = targetTile - entity.GetGridPos();
+        int dx = delta.x == 0 ? 0 : (delta.x > 0 ? 1 : -1);
+        int dy = delta.y == 0 ? 0 : (delta.y > 0 ? 1 : -1);
+        return new Vector3Int(dx, dy, 0);
+    }
 }

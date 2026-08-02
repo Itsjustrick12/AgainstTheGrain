@@ -6,7 +6,7 @@ public class BasicAttackAction : EntityAction
 {
 
     //basically the exact same as the regular one, except we send it to AttackAction instead of Action
-       //finds any valid targets for the action
+    //finds any valid targets for the action
     public override List<Vector3Int> GetValidTargets(Entity entity)
     {
         //creates the empty list for return
@@ -23,7 +23,7 @@ public class BasicAttackAction : EntityAction
         TileManager TM = FindFirstObjectByType<TileManager>();
         Vector3Int startPos = entity.GetGridPos();
         Unit unit = entity as Unit;
-        if(unit == null)
+        if (unit == null)
         {
             Debug.LogError("Invalid Unit");
             return targets;
@@ -32,12 +32,12 @@ public class BasicAttackAction : EntityAction
         int range = unit.GetAttackRange();
 
         //checks all four directions for targets
-        for(int distx = -range; distx <= range; distx++)
+        for (int distx = -range; distx <= range; distx++)
         {
-            for(int disty = -range; disty <= range; disty++)
+            for (int disty = -range; disty <= range; disty++)
             {
                 //makes sure that the action is done withing the action range
-                if(Mathf.Abs(distx) + Mathf.Abs(disty) > range)
+                if (Mathf.Abs(distx) + Mathf.Abs(disty) > range)
                 {
                     continue;
                 }
@@ -45,24 +45,24 @@ public class BasicAttackAction : EntityAction
                 Vector3Int offset = new Vector3Int(distx, disty, 0);
 
                 //checks valid targets in length
-                for(int i = 1; i <= length; i++)
+                for (int i = 1; i <= length; i++)
                 {
                     //checks valid targets width
-                    for(int j = 0; j < width; j++)
+                    for (int j = 0; j < width; j++)
                     {
                         //so first we find the tile i length away
                         Vector3Int currentTile = startPos + offset * i;
                         TileData data = TM.GetTileDataAt(currentTile);
-                        if(data == null)
+                        if (data == null)
                         {
                             continue;
                         }
 
                         //if there's no width we just check the center tile
-                        if(j == 0)
+                        if (j == 0)
                         {
                             //if the width is actionable
-                            if(AttackAction(unit, currentTile))
+                            if (AttackAction(unit, currentTile))
                             {
                                 targets.Add(currentTile);
                             }
@@ -71,18 +71,18 @@ public class BasicAttackAction : EntityAction
                         {
                             Vector3Int checkTile = currentTile + new Vector3Int(offset.y * j, offset.x * j, 0);
                             data = TM.GetTileDataAt(checkTile);
-                            if(data != null)
+                            if (data != null)
                             {
-                                if(AttackAction(unit, checkTile))
+                                if (AttackAction(unit, checkTile))
                                 {
                                     targets.Add(currentTile);
                                 }
                             }
                             checkTile = currentTile + new Vector3Int(offset.y * j * -1, offset.x * j * -1, 0);
                             data = TM.GetTileDataAt(checkTile);
-                            if(data != null)
+                            if (data != null)
                             {
-                                if(AttackAction(unit, checkTile))
+                                if (AttackAction(unit, checkTile))
                                 {
                                     targets.Add(currentTile);
                                 }
@@ -101,22 +101,28 @@ public class BasicAttackAction : EntityAction
     public virtual bool AttackAction(Unit unit, Vector3Int centerTile)
     {
         TileManager manager = FindFirstObjectByType<TileManager>();
+        Vector3Int direction = GetDirection(unit, centerTile);
+
         //checks valid targets in length
-        for(int i = 1; i <= length; i++)
+        for (int i = 0; i <= length; i++)
         {
             //checks valid targets width
-            for(int j = 0; j < width; j++)
+            for (int j = 0; j <= width; j++)
             {
-                Vector3Int currentTile = centerTile + new Vector3Int(i, j, 0);
-                TileData data = manager.GetTileDataAt(currentTile);
-                if (data != null && data.HasOccupant())
-                {
-                    Unit unitCheck = data.occupyingEntity as Unit;
-                    if (unitCheck != null && !unit.IsSameTeamAs(unitCheck))
+                Vector3Int currentTile = centerTile + direction * i;
+
+                //if (j == 0)
+                //{
+                    TileData data = manager.GetTileDataAt(currentTile);
+                    if (data != null && data.HasOccupant())
                     {
-                        return true;
+                        Unit unitCheck = data.occupyingEntity as Unit;
+                        if (unitCheck != null && !unit.IsSameTeamAs(unitCheck))
+                        {
+                            return true;
+                        }
                     }
-                }
+                //}
             }
         }
         return false;
@@ -128,20 +134,20 @@ public class BasicAttackAction : EntityAction
         Unit unit = entity as Unit;
 
         //returns if the unit doesn't exist
-        if(unit == null)
+        if (unit == null)
         {
             return;
         }//sets the animator if it exists
-        else if(unit.HasAnimator())
+        else if (unit.HasAnimator())
         {
-            if(pos.x - unit.GetGridPos().x != 0)
+            if (pos.x - unit.GetGridPos().x != 0)
             {
                 unit.animator.SetFloat("facing", pos.x - unit.GetGridPos().x);
             }
             unit.SetAnimationTrigger(actionTrigger);
         }
 
-        if(actionSound != null)
+        if (actionSound != null)
         {
             SoundManager.Instance.PlaySound(actionSound);
         }
@@ -163,16 +169,16 @@ public class BasicAttackAction : EntityAction
         Vector3Int offset = centerTile - startPos;
 
         //checks valid targets in length
-        for(int i = 1; i <= length; i++)
+        for (int i = 1; i <= length; i++)
         {
             //checks valid targets width
-            for(int j = 0; j < width; j++)
+            for (int j = 0; j < width; j++)
             {
                 Vector3Int currentTile = startPos + offset * i;
                 TileData data = manager.GetTileDataAt(currentTile);
 
                 //if there's no width we just check the center tile
-                if(j == 0)
+                if (j == 0)
                 {
                     //if the width is actionable
                     if (data != null && data.HasOccupant())

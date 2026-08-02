@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SpawnUnitAction
   actionName: Spawn Unit
   actionTrigger: none
-  width: 2
-  length: 2
+  width: 1
+  length: 1
   actionSound: {fileID: 0}
   unitID: 1
