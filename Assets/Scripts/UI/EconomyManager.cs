@@ -7,16 +7,26 @@ public class EconomyManager : MonoBehaviour
     //Needed for global references
     public static EconomyManager Instance { get; private set; }
 
-    [Header("Currency")]
-    [SerializeField] private int coins = 0;
+    [Header("Other")]
+    public GameManager gameManager;
 
-    [Header("Harvested Crops")]
-    [SerializeField] private Dictionary<int, int> harvestedCrops = new Dictionary<int, int>();
+    [Header("Currencies")]
+    /*
+        currencies are going to be divided into a grid system like so
 
-    //Used for returning coint amount to UI elements
-    public static event Action<int> OnCoinsChanged;
-    //Pass the ID with the crop that changed
-    public static event Action<int> OnCropChanged;
+        int currency[faction][currency #]
+        and
+        string currencyName[faction][currency #]
+        
+        this way we can store multiple factions and their multiple currencies in one place
+    */
+    
+    [SerializeField] private int currency[3][10];
+    [SerializeField] private string currencyName[3][10];
+
+    //Used whenever a currency is updated to update the UI
+    //int(faction), int(currency #), int(new value)
+    public static event Action<int, int, int> OnCurrencyUpdate;
 
     [Header("Sounds")]
     public AudioClip coinSound;
@@ -29,99 +39,80 @@ public class EconomyManager : MonoBehaviour
             return;
         }
 
+        //we're grabbing the game manager becuase it's gonna have which faction has which currencies
+        gameManager = FindFirstObjectByType<GameManager>();
+
+        //geting the currency names
+        for (int i = 0; i < 3; i++)
+        {
+            for (int j = 0; j < 10; j++)
+            {
+                currency[i][j] = 0;
+                currencyName[i][j] = gameManager.GetCurrencyName(i,j);
+            }
+        }
+
         Instance = this;
     }
 
-    public int GetCoins()
+    //returns the currency amount
+    public int GetCurrencyAmount(int faction, string name or int number???)
     {
-        return coins;
+        return currency[faction][number];
     }
 
-    public bool CanAfford(int amt)
+    //returns the name of a currency at a certain position
+    public int GetCurrencyName(int faction, int number)
     {
-        if (amt <= coins)
+        return currencyName[faction][number];
+    }
+
+    //checks to see if the faction has enough currency
+    public bool CanAfford(int faction, string name or int number???, int amount)
+    {
+        if (amt <= currency[faction][number])
         {
             return true;
         }
         return false;
     }
 
-    public void SetCoins(int amt)
+    public void SetCurrency(int faction, string name or int number???, int amt)
     {
         //Clamp so coins can never be negative
-        coins = Mathf.Max(0, amt);
-        OnCoinsChanged?.Invoke(coins);
+        currency[faction][number] = Mathf.Max(0, amt);
+        OnCurrencyUpdate?.Invoke(faction, number, currency[faction][number]);
     }
 
-    public void AddCoins(int amt)
+    //sets the currency name
+    public void SetCurrencyName(int faction, int number, string name)
+    {
+        if (name != null)
+        {
+            currencyName[faction][number] = name;
+        }
+        else
+        {
+            currencyName[faction][number] = "";
+        }
+    }
+
+    //adds currency, leaving the coinsound for now, but it would be nice for a sound for adding other currencies(energy, crops)
+    public void AddCurrency(int faction, string name or int number???, int amount)
     {
         SoundManager.Instance.PlaySound(coinSound);
         SetCoins(coins + amt);
     }
 
-    public bool AttemptToBuy(int cost)
+    //attempts to buy the item, also added the can afford as a failsafe
+    public bool AttemptToBuy(int faction, string name or int number???, int amount)
     {
-        if (coins < cost)
+        if (!CanAfford(faction, name, amount))
             return false;
 
         SetCoins(coins - cost);
         return true;
+
     }
 
-    public int GetHarvestedCrops(int id)
-    {
-        return harvestedCrops.TryGetValue(id, out int amt) ? amt : 0;
-    }
-
-    public Dictionary<int, int> GetAllHarvestedCrops()
-    {
-        return new Dictionary<int, int>(harvestedCrops);
-    }
-
-    public void AddHarvestedCrops(int id)
-    {
-        int current = GetHarvestedCrops(id);
-        SetHarvestedCrops(id, current + 1);
-    }
-
-    public bool SellHarvestedCrops(int id)
-    {
-        if (!harvestedCrops.ContainsKey(id) || harvestedCrops[id] <= 0)
-            return false;
-
-        SetHarvestedCrops(id,harvestedCrops[id]-1);
-        CropInfo info = CropDatabase.Instance.GetCropInfo(id);
-        AddCoins(info.sellValue);
-        return true;
-    }
-
-    public bool FeedHarvestedCrops(int id)
-    {
-        if (!harvestedCrops.ContainsKey(id) || harvestedCrops[id] <= 0)
-            return false;
-
-        SetHarvestedCrops(id, harvestedCrops[id] - 1);
-        return true;
-    }
-
-    public void SetHarvestedCrops(int id, int amt)
-    {
-        harvestedCrops[id] = Mathf.Max(0, amt);
-        OnCropChanged?.Invoke(id);
-    }
-    //Used to determine if you can pull up the feed menu to prevent errors
-    public bool HasACrop()
-    {
-        foreach (var pair in harvestedCrops)
-        {
-            int cropID = pair.Key;
-            int amount = pair.Value;
-            //if any crop has a single entry, return that theres a crop
-            if (amount > 0)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
 }
