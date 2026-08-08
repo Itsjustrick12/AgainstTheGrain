@@ -43,7 +43,6 @@ public class Fence : Structure
 
     public void UpdateSprite()
     {
-        tileManager = FindFirstObjectByType<TileManager>();
         Vector3Int pos = GetGridPos();
         bool up = tileManager.GetEntityOnTile(pos + Vector3Int.up) is Fence;
         bool down = tileManager.GetEntityOnTile(pos + Vector3Int.down) is Fence;

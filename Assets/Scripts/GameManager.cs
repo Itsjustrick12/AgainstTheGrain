@@ -249,7 +249,8 @@ public class GameManager : MonoBehaviour
 
         yield return StartCoroutine(WaitForDialogue());
 
-        List<Unit> tempunits = GetAllEnemyUnits();
+        //grabs units from team 2 (enemy)
+        List<Unit> tempunits = Units(2);
 
         //sort based on units that are closest to opposing units first to prevent poor team execution
         //Basically, if you're already close, do your turn first before others so they make smarter decisions
@@ -302,14 +303,9 @@ public class GameManager : MonoBehaviour
 
 
     //Uses the transform containers to return all friendly units
-    public List<Unit> GetAllFriendlyUnits()
+    public List<Unit> GetAllEntities(int team)
     {
-        return new List<Unit>(friendlyUnits.GetComponentsInChildren<Unit>());
-    }
-
-    public List<Unit> GetAllEnemyUnits()
-    {
-        return new List<Unit>(enemyUnits.GetComponentsInChildren<Unit>());
+        return new List<Unit>(Entities[team].GetComponentsInChildren<Entity>());
     }
 
     public List<Structure> GetAllStructures()

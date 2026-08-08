@@ -6,7 +6,7 @@ using UnityEngine;
 public class EndTurnAction : EntityAction
 {
 
-    public override List<Vector3Int> GetValidTargets(Entity entity)
+    public override List<Vector3Int> GetValidTargets(Entity caster)
     {
         List<Vector3Int> valid = new List<Vector3Int>();
         valid.Add(new Vector3Int(0, 0, -1));

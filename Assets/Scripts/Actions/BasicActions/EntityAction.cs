@@ -33,26 +33,27 @@ public class EntityAction : ScriptableObject
     //Holds the logic that is excuted when the action is chosen
 
     //finds any valid targets for the action
-    public virtual List<Vector3Int> GetValidTargets(Entity caster, Entity entity)
+    public virtual List<Vector3Int> GetValidTargets(Entity caster)
     {
         //creates the empty list for return
         List<Vector3Int> targets = new List<Vector3Int>();
 
         //makes sure entity exists
-        if (entity == null)
+        if (caster == null)
         {
-            Debug.LogError("Invalid Entity");
+            Debug.LogError("Invalid Caster");
             return targets;
         }
 
         //defines origin tile and tilemanager
         TileManager TM = FindFirstObjectByType<TileManager>();
-        Vector3Int startPos = entity.GetGridPos();
+        Vector3Int startPos = caster.GetGridPos();
 
         int range = 1;
-        if(entity as Unit != null)
+
+        if(caster as Unit != null)
         {
-            range = (entity as Unit).GetAttackRange();
+            range = (caster as Unit).GetAttackRange();
         }
 
         Debug.Log("unit at " + startPos);
@@ -110,7 +111,7 @@ public class EntityAction : ScriptableObject
                             data = TM.GetTileDataAt(checkTile);
                             if(data != null)
                             {
-                                if(Action(TM.GetTileDataAt(checkTile)))
+                                if(Action(caster, TM.GetTileDataAt(checkTile)))
                                 {
                                     targets.Add(currentTile);
                                     continue;
@@ -136,16 +137,16 @@ public class EntityAction : ScriptableObject
     }
 
     //The unit here is the unit performing the action
-    public virtual void PerformAt(Entity entity, List<Vector3Int> positions)
+    public virtual void PerformAt(Entity caster, List<Vector3Int> positions)
     {
         if(!IsAOE())
         {
-            PerformAt(entity, positions[0]);
+            PerformAt(caster, positions[0]);
             return;
         }
         foreach(Vector3Int current in positions)
         {
-            PerformAt(entity, current);
+            PerformAt(caster, current);
         }
     }
 

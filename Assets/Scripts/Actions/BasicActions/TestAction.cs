@@ -7,7 +7,7 @@ using UnityEngine;
 public class TestAction : EntityAction
 {
 
-    public override List<Vector3Int> GetValidTargets(Entity entity)
+    public override List<Vector3Int> GetValidTargets(Entity caster)
     {
         //do a loop to select all the valid targets
         return new List<Vector3Int>();

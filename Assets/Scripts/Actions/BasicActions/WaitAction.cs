@@ -4,7 +4,7 @@ using UnityEngine;
 public class WaitAction : EntityAction
 {
 
-    public override List<Vector3Int> GetValidTargets(Entity unit)
+    public override List<Vector3Int> GetValidTargets(Entity caster)
     {
         return null;
     }

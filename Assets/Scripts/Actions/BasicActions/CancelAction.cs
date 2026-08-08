@@ -5,7 +5,7 @@ using UnityEngine;
 public class Cancel : EntityAction
 {
 
-    public override List<Vector3Int> GetValidTargets(Entity entity)
+    public override List<Vector3Int> GetValidTargets(Entity caster)
     {
         return null;
     }

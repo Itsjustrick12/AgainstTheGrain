@@ -22,6 +22,7 @@ public class Entity : MonoBehaviour, IBuffable
 {
     //all other class storages
     protected GameManager gameManager;
+    protected TileManager tileManager;
     protected AIManager aiManager;
     protected TileHelper tileHelper;
     protected SpriteRenderer sprite;
@@ -35,12 +36,16 @@ public class Entity : MonoBehaviour, IBuffable
     public static readonly Color DimColor = new Color(0.4f, 0.4f, 0.4f);
 
     [Header("Stats")]
-    //stores the entity's max hitpoints
-    [SerializeField] protected int maxHealth = 10;
     //stores the entity's type
     [SerializeField] protected EntityType type = EntityType.None;
+    //stores the entity's max hitpoints
+    [SerializeField] protected int maxHealth = 10;
     //stores the entity's hitpoints
     [SerializeField] protected int currentHealth = 10;
+    //the damage of the entity's attacks(0 if it can't)
+    [SerializeField] protected int strength = 0;
+    //the range of it's actions
+    [SerializeField] protected int attackRange = 1;
     //Determines where or not something can pathfind through the tile this entity is on
     [SerializeField] private bool isObstacle;
     //Determines if this entity can be clicked on or affected in any way
@@ -61,12 +66,39 @@ public class Entity : MonoBehaviour, IBuffable
     public virtual void Start()
     {
         gameManager = FindFirstObjectByType<GameManager>();
+        tileManager = FindFirstObjectByType<TileManager>();
         tileHelper = FindFirstObjectByType<TileHelper>();
     }
 
     public void InitializeActions(List<EntityAction> newActions)
     {
         actions = newActions;
+    }
+
+    //This is dumb change this later
+    public bool CanAttack()
+    {
+        foreach (var action in actions)
+        {
+            if (action.GetName() == "Attack")
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public int GetAttackRange()
+    {
+        return attackRange;
+    }
+
+    public void SetAttackRange(int temp)
+    {
+        if(temp > 0)
+        {
+            attackRange = temp;
+        }
     }
 
     public List<EntityAction> GetAvailableActions()
@@ -106,6 +138,16 @@ public class Entity : MonoBehaviour, IBuffable
         return currentHealth;
     }
 
+    public virtual EntityType GetEntityType()
+    {
+        return type;
+    }
+
+    public void SetEntityType(EntityType temp)
+    {
+        type = temp;
+    }
+
     public int GetHealth()
     {
         return currentHealth;
@@ -122,7 +164,7 @@ public class Entity : MonoBehaviour, IBuffable
 
     public bool GetInitialized()
     {
-        return Initialized;
+        return isInitialized;
     }
 
     public void SetMaxHealth(int healthValue)
@@ -176,6 +218,37 @@ public class Entity : MonoBehaviour, IBuffable
         sprite.sprite = temp;
     }
 
+    public int GetStrength()
+    {
+        if (activeBuffs.Count == 0)
+            return strength;
+        
+        int baseIncrease = 0;
+        float multiplier = 1;
+
+        
+        //loop through all buffs to check for strengh buffs
+        foreach (Buff buff in activeBuffs)
+        {
+            //check for strength buffs
+            StrengthBuff sBuff = buff as StrengthBuff;
+            if (sBuff != null)
+            {
+                baseIncrease += sBuff.baseIncrease;
+                multiplier *= sBuff.multiplier;
+            }
+        }
+
+        //return the calculated stat after base increases and multiplier
+        return (int)((strength + baseIncrease) * multiplier);
+    }
+
+    public void SetStrength(int strengthValue)
+    {
+        
+        strength = strengthValue;
+    }
+
     public int GetTeam()
     {
         return team;
@@ -191,16 +264,6 @@ public class Entity : MonoBehaviour, IBuffable
         {
             team = 0;
         }
-    }
-
-    public virtual EntityType GetType()
-    {
-        return type;
-    }
-
-    public void SetType(EntityType temp)
-    {
-        type = temp;
     }
 
     public virtual void Die()
@@ -300,12 +363,184 @@ public class Entity : MonoBehaviour, IBuffable
         activeBuffs.Remove(buff);
     }
 
-    public virtual void TakeDamage(int damage)
+    //this entity takes "damage" damage (pre buffs)
+    public void TakeDamage(int damage)
     {
+        SoundManager.Instance.PlayEntitySound(this, SoundType.HURT);
+
+        //if there are any buffs to account for
+        if (activeBuffs.Count > 0)
+        {
+            //calculate buff defense if any
+            int baseIncrease = 0;
+            float multiplier = 1;
+            foreach (Buff buff in activeBuffs)
+            {
+                //check for strength buffs
+                DefenseBuff dBuff = buff as DefenseBuff;
+                if (dBuff != null)
+                {
+                    baseIncrease += dBuff.baseIncrease;
+                    multiplier *= dBuff.multiplier;
+                }
+            }
+
+            //calculate reduction
+            damage = Mathf.Max(0, (int)(damage - (baseIncrease * multiplier)));
+        }
+
         currentHealth -= damage;
         if (currentHealth <= 0)
         {
             Die();
+        }
+
+    }
+
+    //shows the number for damage, at position with x difference between entities
+    public void ShowNumber(int damage, Vector3Int position, int x)
+    {
+        Debug.Log("showNumber");
+        GameObject prefab = Resources.Load<GameObject>("FloatingNum");
+
+        if (prefab == null)
+        {
+            Debug.LogError("prefab not found");
+            return;
+        }
+
+        GameObject canvas = GameObject.Find("HUD");
+        GameObject obj = Instantiate(prefab, canvas.transform, false);
+
+        FloatingNumber fn = obj.GetComponent<FloatingNumber>();
+        StartCoroutine(fn.SetNum(x, damage, position));
+    }
+
+    //entity takes damage from position
+    public void TakeDamage(int damage, Vector3Int position)
+    {
+        if (isEnemy)
+        {
+            OnEnemyHit?.Invoke();
+        }
+        SoundManager.Instance.PlayEntitySound(this, SoundType.HURT);
+        int x = 0;
+        int y = 0;
+        //choose directions for the hitback
+        if (position.x < GetGridPos().x)
+        {
+            x = GetStrength();
+        }
+        else if (position.x > GetGridPos().x)
+        {
+            x = -1 * GetStrength();
+        }
+        if (position.y < GetGridPos().y)
+        {
+            y = GetStrength();
+        }
+        else if (position.y > GetGridPos().y)
+        {
+            y = -1 * GetStrength();
+        }
+        StartCoroutine(Knockback(x, y));
+        
+    }
+
+    //does the damaged knockback animation for the entity
+    public IEnumerator Knockback(int x, int y)
+    {
+        Renderer rend = GetComponent<Renderer>();
+        Color og = rend.material.color;
+        float speed = strength * .02f;
+        if (speed > .005f) speed = .01f;
+        float elapsed = 0f;
+        float duration = 1f;
+        float time = 0;
+
+        rend.material.color = Color.red;
+        while (time < 360)
+        {
+            time += 60;
+            transform.position += new Vector3(Mathf.Sin((time / 360f) * 2f * Mathf.PI) * speed * x, Mathf.Sin((time / 360f) * 2f * Mathf.PI) * speed * y, 0);
+
+            elapsed += Time.deltaTime;
+            yield return new WaitForSeconds(duration / 60f);
+        }
+        rend.material.color = og;
+    }
+
+    public void KnockbackHelper(Entity otherEntity, int distance)
+    {
+        StartCoroutine(Knockback(otherEntity, distance));
+    }
+
+    //forcefully moves this unit back distance spaces
+    public IEnumerator Knockback(Entity otherEntity, int distance)
+    {
+        //gets positions for logic
+        Vector3Int startPos = GetGridPos();
+        Vector3Int currentPos = startPos;
+        Vector3Int otherPos = otherEntity.GetGridPos();
+        bool takeDamage = false;
+
+        //sets the x and y for the knockback based on the difference between this unit and the other unit
+        Vector3Int diff = startPos - otherPos;
+        Vector3Int knockback = new Vector3Int(
+            diff.x == 0 ? 0 : diff.x > 0 ? 1 : -1,
+            diff.y == 0 ? 0 : diff.y > 0 ? 1 : -1,
+            0
+        );
+
+        // VISUAL MOVE LOOP, LOOP OVER ALL TILES IN PATH
+        Vector3 cellOffset = new Vector3(
+            tileManager.entitiesMap.cellSize.x,
+            tileManager.entitiesMap.cellSize.y, 0) * 0.5f;
+
+        for (int i = 0; i < distance; i++)
+        {
+            //find the next position of the unit
+            Vector3Int nextPos = currentPos + knockback;
+            Vector3 startWorld = transform.position;
+            Vector3 endWorld = tileManager.entitiesMap.CellToWorld(nextPos) + cellOffset;
+
+            //if it's a border tile don't take damage and exit
+            if(tileManager.GetTileDataAt(nextPos) == null)
+            {
+                break;
+            }
+
+            //if there's an occupant take damage and exit
+            if(tileManager.GetTileDataAt(nextPos).HasOccupant())
+            {
+                takeDamage = true;
+                break;
+            }
+
+            float elapsed = 0f;
+            while (elapsed < tileManager.stepDuration)
+            {
+                transform.position = Vector3.Lerp(startWorld, endWorld, elapsed / tileManager.stepDuration);
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+            transform.position = endWorld;
+
+            //set next position for the loop
+            currentPos = nextPos;
+        }
+
+        // LOGICAL MOVE, ACTUALLY MOVE TO GRID SPACE
+        if(startPos != currentPos)
+        {
+            tileManager.MoveEntity(startPos, currentPos);
+        }
+
+        //logic for ram knockback
+        if(takeDamage && otherUnit.ID == 10)
+        {
+            //ShowNumber(5, otherUnit.GetGridPos(), distance);
+            this.TakeDamage(5, otherUnit.GetGridPos());
         }
     }
 }
