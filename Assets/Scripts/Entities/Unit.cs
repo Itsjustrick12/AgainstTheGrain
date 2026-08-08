@@ -16,7 +16,6 @@ public class Unit : Entity
     [SerializeField] protected int attackRange = 1;
     [SerializeField] protected int movementRange = 3;
     public bool isFed = false;
-    public bool isEnemy = false;
     public bool canFly = false;
 
     [Header("For Targeting")]

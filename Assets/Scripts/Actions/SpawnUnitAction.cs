@@ -25,7 +25,7 @@ public class SpawnUnitAction : EntityAction
     }
 
     //actually checks to see if the action can be done at position tilePos
-    public override bool Action(TileData tileData)
+    public override bool Action(Entity caster, TileData tileData)
     {
         if (tileData != null && tileData.CanPlaceEntity())
         {
@@ -34,7 +34,7 @@ public class SpawnUnitAction : EntityAction
         return false;
     }
     //actually preforms the Action on the tile
-    public override void PerformAt(TileData tileData)
+    public override void PerformAt(Entity caster, TileData tileData)
     {
         GameManager gameManager = FindFirstObjectByType<GameManager>();
         Vector3Int pos = tileData.GetGridPos();

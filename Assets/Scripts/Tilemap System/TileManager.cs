@@ -15,7 +15,7 @@ public class TileManager : MonoBehaviour
     //Overlay tiles like paths and water are overlayed on top of primary 
     public Tilemap overlayDisplayMap;
 
-    // Holds information about what entities (objects, units, crops) are going to be present at a given tile
+    // Holds information about what entities (objects, units, resources) are going to be present at a given tile
     public Tilemap entitiesMap;
     //Will be used for drawing the boarder around where tiles are placed so theres no screen edges
     public Tilemap borderMap;
@@ -247,31 +247,6 @@ public class TileManager : MonoBehaviour
         }
     }
 
-    public void DryWateredTiles()
-    {
-        List<Vector3Int> wateredPositions = new List<Vector3Int>();
-
-        //Find all watered tiles first
-        foreach (var pair in tilePosToData)
-        {
-            TileData data = pair.Value;
-            if (data.type == TileType.WateredDirt)
-            {
-                wateredPositions.Add(pair.Key);
-            }
-        }
-
-        //Update the necessary tiles
-        foreach (var pos in wateredPositions)
-        {
-            // Update the TileData type
-            tilePosToData[pos].UpdateType(TileType.Dirt);
-
-            // Update the placeholder map & visuals
-            SetTile(pos, TileType.Dirt);
-        }
-    }
-
     public void MoveEntity(Vector3Int start, Vector3Int end)
     {
         
@@ -299,10 +274,10 @@ public class TileManager : MonoBehaviour
         return unit;
     }
 
-    public Crop GetCropOnTile(Vector3Int pos)
+    public Resource GetResourceOnTile(Vector3Int pos)
     {
-        Crop crop = GetEntityOnTile(pos) as Crop;
-        return crop;
+        Resource resource = GetEntityOnTile(pos) as Resource;
+        return resource;
     }
 
     public Entity GetEntityOnTile(Vector3Int pos)
@@ -337,10 +312,41 @@ public class TileManager : MonoBehaviour
     private void OnEnable()
     {
         GameManager.StartPlayerTurn += DryWateredTiles;
+        Entity.OnEntityDestroyed += RemoveUnit;
     }
 
     private void OnDisable()
     {
         GameManager.StartPlayerTurn -= DryWateredTiles;
+    }
+
+    public void DryWateredTiles()
+    {
+        List<Vector3Int> wateredPositions = new List<Vector3Int>();
+
+        //Find all watered tiles first
+        foreach (var pair in tilePosToData)
+        {
+            TileData data = pair.Value;
+            if (data.type == TileType.WateredDirt)
+            {
+                wateredPositions.Add(pair.Key);
+            }
+        }
+
+        //Update the necessary tiles
+        foreach (var pos in wateredPositions)
+        {
+            // Update the TileData type
+            tilePosToData[pos].UpdateType(TileType.Dirt);
+
+            // Update the placeholder map & visuals
+            SetTile(pos, TileType.Dirt);
+        }
+    }
+
+    public void RemoveUnit(Entity entity, int gridPos)
+    {
+        tileManager.GetTileDataAt(GetGridPos()).ClearOccupant();
     }
 }

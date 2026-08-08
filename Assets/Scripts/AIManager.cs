@@ -245,15 +245,8 @@ public class AIManager : MonoBehaviour
         List<Vector3Int> temp = new List<Vector3Int>();
         List<Unit> tempUnits;
 
-        //grabs the list depending on team
-        if (unit.isEnemy)
-        {
-            tempUnits = gameManager.GetAllFriendlyUnits();
-        }
-        else
-        {
-            tempUnits = gameManager.GetAllEnemyUnits();
-        }
+        //grabs the list
+        tempUnits = gameManager.GetAllUnits(unit.GetTeam());
 
         //gets all of the entities to be targeted
         for(int i = 0; i < tempUnits.Count; i++)

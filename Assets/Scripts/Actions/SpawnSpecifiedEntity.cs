@@ -22,7 +22,7 @@ public class SpawnSpecifiedEntity : EntityAction
         return false;
     }
 
-    public override bool Action(TileData tileData)
+    public override bool Action(Entity caster, TileData tileData)
     {
         if (tileData != null && tileData.CanPlaceEntity())
         {
@@ -33,7 +33,7 @@ public class SpawnSpecifiedEntity : EntityAction
     }
 
     //actually preforms the Action on the tile
-    public override void PerformAt(TileData tileData)
+    public override void PerformAt(Entity caster, TileData tileData)
     {
         if(tileData == null)
         {

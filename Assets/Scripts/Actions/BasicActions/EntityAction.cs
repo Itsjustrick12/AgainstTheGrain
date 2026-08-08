@@ -33,7 +33,7 @@ public class EntityAction : ScriptableObject
     //Holds the logic that is excuted when the action is chosen
 
     //finds any valid targets for the action
-    public virtual List<Vector3Int> GetValidTargets(Entity entity)
+    public virtual List<Vector3Int> GetValidTargets(Entity caster, Entity entity)
     {
         //creates the empty list for return
         List<Vector3Int> targets = new List<Vector3Int>();
@@ -88,7 +88,7 @@ public class EntityAction : ScriptableObject
                         if(j == 0)
                         {
                             //if the width is actionable
-                            if(Action(TM.GetTileDataAt(checkTile)))
+                            if(Action(caster, TM.GetTileDataAt(checkTile)))
                             {
                                 targets.Add(currentTile);
                                 continue;
@@ -100,7 +100,7 @@ public class EntityAction : ScriptableObject
                             data = TM.GetTileDataAt(checkTile);
                             if(data != null)
                             {
-                                if(Action(TM.GetTileDataAt(checkTile)))
+                                if(Action(caster, TM.GetTileDataAt(checkTile)))
                                 {
                                     targets.Add(currentTile);
                                     continue;
@@ -150,10 +150,10 @@ public class EntityAction : ScriptableObject
     }
 
     //The unit here is the unit performing the action
-    public virtual void PerformAt(Entity entity, Vector3Int pos)
+    public virtual void PerformAt(Entity caster, Vector3Int pos)
     {
         TileManager TM = FindFirstObjectByType<TileManager>();
-        Unit unit = entity as Unit;
+        Unit unit = caster as Unit;
 
         if(unit != null && unit.HasAnimator())
         {
@@ -170,7 +170,7 @@ public class EntityAction : ScriptableObject
         }
 
         TileData data = TM.GetTileDataAt(pos);
-        Vector3Int startPos = entity.GetGridPos();
+        Vector3Int startPos = caster.GetGridPos();
         Vector3Int offset = pos - startPos;
 
         if(data != null)
@@ -192,9 +192,9 @@ public class EntityAction : ScriptableObject
                     if(j == 0)
                     {
                         //if the width is actionable
-                        if(Action(data))
+                        if(Action(caster, data))
                         {
-                            PerformAt(data);
+                            PerformAt(caster, data);
                         }
                     }//if we have a width we go through all the widths
                     else
@@ -203,18 +203,18 @@ public class EntityAction : ScriptableObject
                         data = TM.GetTileDataAt(checkTile);
                         if(data != null)
                         {
-                            if(Action(TM.GetTileDataAt(checkTile)))
+                            if(Action(caster, TM.GetTileDataAt(checkTile)))
                             {
-                                PerformAt(data);
+                                PerformAt(caster, data);
                             }
                         }
                         checkTile = currentTile + new Vector3Int(offset.y * j * -1, offset.x * j * -1, 0);
                         data = TM.GetTileDataAt(checkTile);
                         if(data != null)
                         {
-                            if(Action(TM.GetTileDataAt(checkTile)))
+                            if(Action(caster, TM.GetTileDataAt(checkTile)))
                             {
-                                PerformAt(data);
+                                PerformAt(caster, data);
                             }
                         }
                     }
@@ -285,9 +285,9 @@ public class EntityAction : ScriptableObject
     }
 
     //actually checks to see if the action can be done at position tilePos
-    public virtual bool Action(TileData tileData){return false;}
+    public virtual bool Action(Entity caster, TileData tileData){return false;}
     //actually preforms the Action on the tile
-    public virtual void PerformAt(TileData tileData){}
+    public virtual void PerformAt(Entity caster, TileData tileData){}
     //Gets the direction from current caster to target (unit vector)
     protected Vector3Int GetDirection(Entity entity, Vector3Int targetTile)
     {

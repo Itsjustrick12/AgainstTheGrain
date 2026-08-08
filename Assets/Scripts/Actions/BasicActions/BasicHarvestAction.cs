@@ -7,9 +7,9 @@ public class BasicHarvestAction : EntityAction
     public static Action onHarvest;
 
     //sees if the action is preformable
-    public override bool Action(TileData tileData)
+    public override bool Action(Entity caster, TileData tileData)
     {
-        Crop crop = tileData.GetOccupyingEntity() as Crop;
+        Resource crop = tileData.GetOccupyingEntity() as Resource;
         if(crop != null && crop.CanBeHarvested())
         {
             return true;
@@ -18,11 +18,11 @@ public class BasicHarvestAction : EntityAction
     }
 
     //actually preforms the Action on the tile
-    public override void PerformAt(TileData tileData)
+    public override void PerformAt(Entity caster, TileData tileData)
     {
         TileManager manager = FindFirstObjectByType<TileManager>();
         Vector3Int pos = tileData.GetGridPos();
-        Crop targetCrop = manager.GetCropOnTile(pos);
-        if(targetCrop != null)targetCrop.Harvest();
+        Resource targetCrop = manager.GetResourceOnTile(pos);
+        if(targetCrop != null)targetCrop.Harvest(caster.GetTeam());
     }
 }

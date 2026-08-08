@@ -20,15 +20,15 @@ public enum EntityType
 [RequireComponent(typeof(SpriteRenderer))]
 public class Entity : MonoBehaviour, IBuffable
 {
-    protected SpriteRenderer sprite;
-    //Stores the location of where this entity actually is
-    private Vector3Int gridPos;
-    protected bool isActive = true;
-    protected TileManager tileManager;
+    //all other class storages
     protected GameManager gameManager;
     protected AIManager aiManager;
     protected TileHelper tileHelper;
+    protected SpriteRenderer sprite;
+    //Stores the location of where this entity actually is
+    private Vector3Int gridPos;
 
+    protected bool isActive = true;
     private bool isInitialized = false;
 
     //near constant color used for dimming entities when they are deactivated
@@ -48,18 +48,18 @@ public class Entity : MonoBehaviour, IBuffable
     private Vector3 offset = new Vector3(0.5f, 0.5f, 0);
     //holds the animator
     [SerializeField] public Animator animator;
+    [SerializeField] public int team = 0;
 
     //Hidden logic for determining what a unit is able to do, define by the unit database
     protected List<EntityAction> actions = new();
 
-    public static event Action<Entity> OnEntityDestroyed;
+    public static event Action<Entity, Vector3Int> OnEntityDestroyed;
 
     //For managing buffs
     protected List<Buff> activeBuffs = new List<Buff>();
 
     public virtual void Start()
     {
-        tileManager = FindFirstObjectByType<TileManager>();
         gameManager = FindFirstObjectByType<GameManager>();
         tileHelper = FindFirstObjectByType<TileHelper>();
     }
@@ -91,11 +91,6 @@ public class Entity : MonoBehaviour, IBuffable
     {
         return gridPos;
     }
-
-    public int GetHealth()
-    {
-        return currentHealth;
-    }
     
     public void SetCurrentHealth(int healthValue)
     { 
@@ -111,6 +106,25 @@ public class Entity : MonoBehaviour, IBuffable
         return currentHealth;
     }
 
+    public int GetHealth()
+    {
+        return currentHealth;
+    }
+
+    public void SetHealth(int healthValue)
+    { 
+        if(healthValue > maxHealth)
+        {
+            healthValue = maxHealth;
+        }
+        currentHealth = healthValue;
+    }
+
+    public bool GetInitialized()
+    {
+        return Initialized;
+    }
+
     public void SetMaxHealth(int healthValue)
     { 
         if(healthValue > 0)
@@ -122,15 +136,6 @@ public class Entity : MonoBehaviour, IBuffable
     public int GetMaxHealth()
     {
         return maxHealth;
-    }
-    
-    public void SetHealth(int healthValue)
-    { 
-        if(healthValue > maxHealth)
-        {
-            healthValue = maxHealth;
-        }
-        currentHealth = healthValue;
     }
 
     public bool IsInteractable()
@@ -147,6 +152,7 @@ public class Entity : MonoBehaviour, IBuffable
     {
         return isObstacle;
     }
+
     public void SetIsObstacle(bool obstacle)
     {
         isObstacle = obstacle;
@@ -170,16 +176,24 @@ public class Entity : MonoBehaviour, IBuffable
         sprite.sprite = temp;
     }
 
-    public virtual void TakeDamage(int damage)
+    public int GetTeam()
     {
-        currentHealth -= damage;
-        if (currentHealth <= 0)
+        return team;
+    }
+
+    public void SetTeam(int i)
+    {
+        if(i >= 0)
         {
-            Die();
+            team = i;
+        }
+        else
+        {
+            team = 0;
         }
     }
 
-    public virtual EntityType GetEntityType()
+    public virtual EntityType GetType()
     {
         return type;
     }
@@ -191,15 +205,12 @@ public class Entity : MonoBehaviour, IBuffable
 
     public virtual void Die()
     {
-        //Remove entity from tile
-        TileData tile = tileManager.GetTileDataAt(GetGridPos());
-        tile.ClearOccupant();
 
         //Remove from hierarchy (needed for the check of how many units there are
         transform.SetParent(null);
 
         //Now game state is accurate
-        OnEntityDestroyed(this);
+        OnEntityDestroyed(this, gridPos);
 
         //Destroy entity after the check to allow it to happen
         Destroy(gameObject);
@@ -234,14 +245,31 @@ public class Entity : MonoBehaviour, IBuffable
         isInitialized = true;
     }
 
-    public bool GetIsInitialized()
-    {
-        return isInitialized;
-    }
-
     public bool IsActive()
     {
         return isActive;
+    }
+
+    public bool IsSameTeam(Entity entity)
+    {
+        return team == entity.GetTeam();
+    }
+
+    public virtual void Activate()
+    {
+        sprite.color = Color.white;
+        isActive = true;
+    }
+
+    public void AddBuff(Buff buff)
+    {
+        activeBuffs.Add(buff);
+        buff.Apply(this);
+    }
+
+    public void ClearBuffs()
+    {
+        activeBuffs.Clear();
     }
 
     public virtual void Deactivate()
@@ -261,17 +289,6 @@ public class Entity : MonoBehaviour, IBuffable
         sprite.color = DimColor;
     }
 
-    public virtual void Activate()
-    {
-        sprite.color = Color.white;
-        isActive = true;
-    }
-
-    public void AddBuff(Buff buff)
-    {
-        activeBuffs.Add(buff);
-        buff.Apply(this);
-    }
     //Is called by the buff class itself who manages the duration of itself
     public void RemoveBuff(Buff buff)
     {
@@ -283,8 +300,12 @@ public class Entity : MonoBehaviour, IBuffable
         activeBuffs.Remove(buff);
     }
 
-    public void ClearBuffs()
+    public virtual void TakeDamage(int damage)
     {
-        activeBuffs.Clear();
+        currentHealth -= damage;
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
     }
 }

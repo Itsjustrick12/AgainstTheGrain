@@ -15,7 +15,7 @@ public class PlantAction : EntityAction
     }
 
     //actually checks to see if the action can be done at position tilePos
-    public override bool Action(TileData tileData)
+    public override bool Action(Entity caster, TileData tileData)
     {
         if (tileData != null && tileData.IsPlantable())
         {
@@ -25,11 +25,11 @@ public class PlantAction : EntityAction
         return false;
     }
     //actually preforms the Action on the tile
-    public override void PerformAt(TileData tileData)
+    public override void PerformAt(Entity caster, TileData tileData)
     {
         Vector3Int pos = tileData.GetGridPos();
         GameManager manager = FindFirstObjectByType<GameManager>();
-        manager.SpawnCropOnTile(CropDatabase.Instance.GetCropInfo(cropID), pos);
+        manager.SpawnResourceOnTile(ResourceDatabase.Instance.GetResourceInfo(cropID), pos);
         onPlant?.Invoke();
     }
 }

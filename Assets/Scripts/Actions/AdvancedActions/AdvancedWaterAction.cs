@@ -6,7 +6,7 @@ public class AdvancedWaterAction : BasicWaterAction
 {
 
     //actually preforms the Action on the tile
-    public override void PerformAt(TileData tileData)
+    public override void PerformAt(Entity caster, TileData tileData)
     {
         TileManager manager = FindFirstObjectByType<TileManager>();
         Entity entity = tileData.occupyingEntity;
@@ -17,12 +17,12 @@ public class AdvancedWaterAction : BasicWaterAction
             return;
         }
 
-        Crop crop = entity as Crop;
+        Resource crop = entity as Resource;
         Unit unit = entity as Unit;
 
         if(crop != null)
         {
-            crop.WaterCrop();
+            crop.Interact();
         }
         else if(unit != null)
         {

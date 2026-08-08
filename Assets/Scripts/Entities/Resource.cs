@@ -1,21 +1,23 @@
 using JetBrains.Annotations;
 using UnityEngine;
-//The crop object that is spawned in the game world and treated like an entity
-public class Crop : Entity
+//The resource object that is spawned in the game world and treated like an entity
+public class Resource : Entity
 {
-    //What crop does this entity represent?
+    //What resource does this entity represent?
     public int id;
-    private CropInfo refCrop;
-
-    private int currentStage = 0;
+    private ResourceInfo refResource;
 
     [Header("State Variables")]
 
-    private bool isWatered = false;
+    //has the resource been interacted with(watering)
+    private bool interacted = false;
+    //is the resource ready to be harvested?
     private bool isHarvestable = false;
+    //What stage is the resource at?
+    private int currentStage = 0;
 
     //Used for multiharvesting
-    private bool isMultiHarvest = false;
+    private bool renewable = false;
     private int onHarvestStage = 0;
     private bool isBarren = false;
     private Sprite barrenSprite;
@@ -24,15 +26,15 @@ public class Crop : Entity
     [SerializeField] private ParticleSystem harvestParticle;
 
 
-    public void Initialize(CropInfo info)
+    public void Initialize(ResourceInfo info)
     {
-        refCrop = info;
+        refResource = info;
         id = info.id;
-        isWatered = false;
+        interacted = false;
         currentStage = 0;
         SetIsHarvestable(false);
         sprite.sprite = info.growthStageSprites[0];
-        isMultiHarvest = info.isMultiHarvest;
+        renewable = info.renewable;
         onHarvestStage = info.onHarvestStage;
         barrenSprite = info.barrenSprite;
         maxHealth = info.baseHealth;
@@ -42,18 +44,24 @@ public class Crop : Entity
     public override void Initialize()
     {
         base.Initialize();
-        CropInfo info = CropDatabase.Instance.GetCropInfo(id);
+        ResourceInfo info = ResourceDatabase.Instance.GetResourceInfo(id);
         if (info == null)
         {
-            Debug.LogError("Tried to initialize crop without a valid info in the database scriptable object. Check the resources folder!");
+            Debug.LogError("Tried to initialize resource without a valid info in the database scriptable object. Check the resources folder!");
         }
         Initialize(info);
     }
 
-    public void WaterCrop()
+    public void Interact()
     {
         sprite.color = DimColor;
-        isWatered = true;
+        interacted = true;
+    }
+
+    //returns if you can still interact with the resource
+    public bool CanInteract()
+    {
+        return !interacted;
     }
 
     public void SetIsHarvestable(bool value)
@@ -70,30 +78,30 @@ public class Crop : Entity
         }
     }
 
-    public void ResetWater()
+    public void ResetInteract()
     {
         sprite.color = Color.white;
-        isWatered = false;
+        interacted = false;
     }
 
     public void ProcessGrowth()
     {
         if (CanGrow())
         {
-            //Process the crop's stage
-            currentStage = Mathf.Min(currentStage + 1, refCrop.numStages-1);
+            //Process the resource's stage
+            currentStage = Mathf.Min(currentStage + 1, refResource.numStages-1);
 
             //If processed through all stages, its now harvestable
-            if (refCrop != null && refCrop.numStages-1 == currentStage)
+            if (refResource != null && refResource.numStages-1 == currentStage)
             {
                 //Get the last sprite index
-                sprite.sprite = refCrop.growthStageSprites[refCrop.numStages - 1];
+                sprite.sprite = refResource.growthStageSprites[refResource.numStages - 1];
                 SetIsHarvestable(true);
                 isBarren = false;
             }
             else
             {
-                if (refCrop.growthStageSprites.Length <= currentStage)
+                if (refResource.growthStageSprites.Length <= currentStage)
                 {
                     Debug.Log("There isn't a sprite for this stage");
                     return;
@@ -105,19 +113,19 @@ public class Crop : Entity
                 }
                 if (!isBarren)
                 {
-                    sprite.sprite = refCrop.growthStageSprites[currentStage];
+                    sprite.sprite = refResource.growthStageSprites[currentStage];
                 }
 
             }
 
         }
-        ResetWater();
+        ResetInteract();
     }
 
     //May get more complicated later
     public bool CanGrow()
     {
-        if (isWatered)
+        if (interacted)
         {
             return true;
         }
@@ -129,14 +137,14 @@ public class Crop : Entity
         return isHarvestable;
     }
 
-    public void Harvest()
+    public void Harvest(int team)
     {
         if (CanBeHarvested())
         {
 
-            EconomyManager.Instance.AddHarvestedCrops(id);
-            //If multiharvest, jump to the stage defined by the CropInfo, then proceed like normal
-            if (isMultiHarvest)
+            EconomyManager.Instance.AddCurrency(team, id);
+            //If multiharvest, jump to the stage defined by the ResourceInfo, then proceed like normal
+            if (renewable)
             {
                 currentStage = onHarvestStage;
                 sprite.sprite = barrenSprite;
@@ -158,9 +166,9 @@ public class Crop : Entity
         return isHarvestable;
     }
 
-    public bool IsWatered()
+    public bool Interacted()
     {
-        return isWatered;
+        return interacted;
     }
 
     //Use the events system to get updates about state when the turn advanced
