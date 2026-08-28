@@ -23,7 +23,7 @@ public class GameManager : MonoBehaviour
     //Transforms for sorting
     public Transform friendlyUnits;
     public Transform enemyUnits;
-    public Transform cropContainer;
+    public Transform resourceContainer;
     public Transform structureContainter;
     CameraController camera;
 
@@ -51,8 +51,8 @@ public class GameManager : MonoBehaviour
     public bool isGameOver = false;
     public bool skipTurnAnimations = false;
 
-    //Set which crops are availible to play with
-    public List<int> cropIDs = new List<int>();
+    //Set which resources are availible to play with
+    public List<int> resourceIDs = new List<int>();
     public List<int> entityIDs = new List<int>();
 
 
@@ -143,16 +143,16 @@ public class GameManager : MonoBehaviour
                 {
                     TileBase temp = entityMap.GetTile(tilePos);
                     UnitInfo unitInfo = UnitDatabase.Instance.GetUnitInfoFromTile(temp);
-                    CropInfo cropInfo = CropDatabase.Instance.GetCropInfoFromTile(temp);
+                    ResourceInfo resourceInfo = ResourceDatabase.Instance.GetResourceInfoFromTile(temp);
                     StructureInfo structInfo = StructureDatabase.Instance.GetStructureInfoFromTile(temp);
 
                     if (unitInfo != null)
                     {
                         SpawnUnitOnTile(unitInfo, tilePos);
                     }
-                    else if (cropInfo != null)
+                    else if (resourceInfo != null)
                     {
-                        SpawnCropOnTile(cropInfo, tilePos);
+                        SpawnresourceOnTile(resourceInfo, tilePos);
                     }
                     else if (structInfo != null)
                     {
@@ -215,7 +215,7 @@ public class GameManager : MonoBehaviour
 
     }
 
-    public void SpawnCropOnTile(CropInfo cropInfo, Vector3Int pos)
+    public void SpawnResourceOnTile(ResourceInfo resourceInfo, Vector3Int pos)
     {
         TileData data = tileManager.GetTileDataAt(pos);
         if (data == null || data.HasOccupant() || data.type == TileType.Grass)
@@ -224,20 +224,20 @@ public class GameManager : MonoBehaviour
             return;
         }
         //spawn the new object
-        GameObject obj = Instantiate(CropDatabase.Instance.cropPrefab);
+        GameObject obj = Instantiate(ResourceDatabase.Instance.resourcePrefab);
         if (obj != null)
         {
-            obj.transform.parent = cropContainer;
+            obj.transform.parent = resourceContainer;
         }
         //Update the position
-        Crop cropRef = obj.GetComponent<Crop>();
-        if (cropRef != null)
+        Resource resourceRef = obj.GetComponent<Resource>();
+        if (resourceRef != null)
         {
-            //Assign the crop to mirror here
-            cropRef.Initialize(cropInfo);
+            //Assign the resource to mirror here
+            resourceRef.Initialize(resourceInfo);
             //Assign to the tiledata
-            tileManager.PlaceEntityOnTile(pos, cropRef);
-            cropRef.UpdateTransform(pos);
+            tileManager.PlaceEntityOnTile(pos, resourceRef);
+            resourceRef.UpdateTransform(pos);
         }
 
     }
@@ -249,7 +249,8 @@ public class GameManager : MonoBehaviour
 
         yield return StartCoroutine(WaitForDialogue());
 
-        List<Unit> tempunits = GetAllEnemyUnits();
+        //grabs units from team 2 (enemy)
+        List<Unit> tempunits = Units(2);
 
         //sort based on units that are closest to opposing units first to prevent poor team execution
         //Basically, if you're already close, do your turn first before others so they make smarter decisions
@@ -302,14 +303,9 @@ public class GameManager : MonoBehaviour
 
 
     //Uses the transform containers to return all friendly units
-    public List<Unit> GetAllFriendlyUnits()
+    public List<Unit> GetAllEntities(int team)
     {
-        return new List<Unit>(friendlyUnits.GetComponentsInChildren<Unit>());
-    }
-
-    public List<Unit> GetAllEnemyUnits()
-    {
-        return new List<Unit>(enemyUnits.GetComponentsInChildren<Unit>());
+        return new List<Unit>(Entities[team].GetComponentsInChildren<Entity>());
     }
 
     public List<Structure> GetAllStructures()
@@ -317,9 +313,9 @@ public class GameManager : MonoBehaviour
         return new List<Structure>(structureContainter.GetComponentsInChildren<Structure>());
     }
 
-    public List<Crop> GetAllCrops()
+    public List<Resource> GetAllResources()
     {
-        return new List<Crop>(cropContainer.GetComponentsInChildren<Crop>());
+        return new List<Resource>(resourceContainer.GetComponentsInChildren<Resource>());
     }
 
     public List<int> GetLevelEntities()
@@ -520,9 +516,9 @@ public class GameManager : MonoBehaviour
         return null;
     }
 
-    public List<int> GetCropIDs()
+    public List<int> GetResourceIDs()
     {
-        return cropIDs;
+        return resourceIDs;
     }
 
 

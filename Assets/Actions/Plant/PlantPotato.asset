@@ -12,5 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1a9b0ed67a56dd4ca4ca5ef1c451fa4, type: 3}
   m_Name: PlantPotato
   m_EditorClassIdentifier: Assembly-CSharp::PlantAction
+  actionName: Plant
+  actionTrigger: plant
+  width: 1
+  length: 1
+  actionSound: {fileID: 0}
   cropID: 4
-  cropName: Potato

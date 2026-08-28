@@ -612,7 +612,8 @@ public class UnitInteractionSystem : TileCursor
         {
             //Execute the action
             //Need to remain general
-            currAction.PerformAt(selectedEntity as Entity, pos);
+            Debug.Log("Preforming " + currAction.actionName);
+            currAction.PerformAt(selectedEntity, pos);
             selectedEntity.Deactivate();
             ResetData();
             return true;

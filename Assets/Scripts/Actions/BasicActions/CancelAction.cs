@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
-[CreateAssetMenu(menuName = "Actions/Wait")]
-public class WaitAction : EntityAction
+
+[CreateAssetMenu(menuName = "Actions/Cancel")]
+public class Cancel : EntityAction
 {
 
     public override List<Vector3Int> GetValidTargets(Entity caster)
@@ -9,7 +10,7 @@ public class WaitAction : EntityAction
         return null;
     }
 
-    public override bool IsPossible(Entity unit)
+    public override bool IsPossible(Entity entity)
     {
         return true;
     }

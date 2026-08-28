@@ -9,12 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d1a9b0ed67a56dd4ca4ca5ef1c451fa4, type: 3}
-  m_Name: PlantCarrot
-  m_EditorClassIdentifier: Assembly-CSharp::PlantAction
-  actionName: Plant
-  actionTrigger: plant
-  width: 1
+  m_Script: {fileID: 11500000, guid: cc0f6e89145524ad98a3d9aec12f9727, type: 3}
+  m_Name: AdvancedHarvestAction
+  m_EditorClassIdentifier: Assembly-CSharp::AdvancedHarvestAction
+  actionName: Harvest
+  actionTrigger: harvest
+  width: 2
   length: 1
   actionSound: {fileID: 0}
-  cropID: 3

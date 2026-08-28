@@ -9,8 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 35995068ad0f54b12bfa126b1b9d71f9, type: 3}
-  m_Name: AdvancedPlantAction
-  m_EditorClassIdentifier: Assembly-CSharp::AdvancedPlantAction
-  cropID: 1
-  plantSound: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 2b7aaca12f9560a4f95958a9137629ab, type: 3}
+  m_Name: WaterAction
+  m_EditorClassIdentifier: Assembly-CSharp::BasicWaterAction
+  actionName: Water
+  actionTrigger: water
+  width: 1
+  length: 1
+  actionSound: {fileID: 0}

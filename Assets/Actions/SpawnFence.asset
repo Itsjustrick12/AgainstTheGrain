@@ -12,4 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e905ba7283f1abd48b62985a44c211f6, type: 3}
   m_Name: SpawnFence
   m_EditorClassIdentifier: Assembly-CSharp::SpawnSpecifiedEntity
+  actionName: Spawn Fence
+  actionTrigger: none
+  width: 1
+  length: 1
+  actionSound: {fileID: 0}
   entityObj: {fileID: 4935858330493278644, guid: 382b3da311946024e9b29fa5bea1c4d4, type: 3}

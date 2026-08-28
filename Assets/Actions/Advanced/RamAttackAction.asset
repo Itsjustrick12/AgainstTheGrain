@@ -9,6 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9b008cc6c9da946f98af26b5b3285b96, type: 3}
-  m_Name: ReaperAttackAction
-  m_EditorClassIdentifier: Assembly-CSharp::ReaperAttackAction
+  m_Script: {fileID: 11500000, guid: cd0a0133de9184e21a703157a2fdca2d, type: 3}
+  m_Name: RamAttackAction
+  m_EditorClassIdentifier: Assembly-CSharp::RamAttackAction
+  actionName: Attack
+  actionTrigger: attack
+  width: 1
+  length: 1
+  actionSound: {fileID: 0}

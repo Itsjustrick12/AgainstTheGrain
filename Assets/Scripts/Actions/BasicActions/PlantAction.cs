@@ -7,88 +7,29 @@ using UnityEngine;
 public class PlantAction : EntityAction
 {
     public int cropID = 1;
-    public AudioClip plantSound;
     public static Action onPlant;
-    //public string cropName = "Wheat";
-    public override string GetName()
-    {
-        return "Plant";// + cropName;
-    }
 
     public void SetCropID(int id)
     {
         cropID = id;
     }
-    //Need to validate size when returned
-    public override List<Vector3Int> GetValidTargets(Entity unit)
+
+    //actually checks to see if the action can be done at position tilePos
+    public override bool Action(Entity caster, TileData tileData)
     {
-        List<Vector3Int> targets = new List<Vector3Int>();
-        //get references 
-        if (unit == null)
+        if (tileData != null && tileData.IsPlantable())
         {
-            Debug.LogError("Trying to get valid targets based on an invalid Unit in attack action");
-            return targets;
+            return true;
         }
 
-        TileManager TM = FindFirstObjectByType<TileManager>();
-
-        Vector3Int startPos = unit.GetGridPos();
-
-        //get a reference to all tiles nearby and check if there are opposing units there
-        foreach (Vector3Int offset in TileManager.DIRECTIONS)
-        {
-            Vector3Int currentTile = startPos + offset;
-            TileData data = TM.GetTileDataAt(currentTile);
-
-            if (data != null && data.IsPlantable())
-            {
-                targets.Add(currentTile);
-            }
-        }
-
-        return targets;
-
-    }
-
-    public override bool IsAOE()
-    {
         return false;
     }
-
-    public override bool IsPossible(Entity unit)
+    //actually preforms the Action on the tile
+    public override void PerformAt(Entity caster, TileData tileData)
     {
-        //Plant isn't possible if there are no nearby enemy units or the unit already moved
-        if (GetValidTargets(unit).Count <= 0 || !unit.IsActive())
-        {
-            return false;
-        }
-        return true;
-    }
-
-    public override void PerformAt(Entity unit, List<Vector3Int> positions)
-    {
-        //Just plant the unit from the selected position, for this basic attack there shouldn't be more than one target
-        PerformAt(unit, positions[0]);
-
-    }
-
-    public override void PerformAt(Entity unit, Vector3Int pos)
-    {
-        GameManager GM = FindFirstObjectByType<GameManager>();
-
-        Unit unitCheck = unit as Unit;
-        if (unitCheck.HasAnimator())
-        {
-            if(pos.x - unitCheck.GetGridPos().x != 0)
-            {
-                unit.animator.SetFloat("facing", pos.x - unitCheck.GetGridPos().x);
-            }
-            unitCheck.SetAnimationTrigger("plant");
-        }
-
-        //TODO: Update this here when we add more crops
-        GM.SpawnCropOnTile(CropDatabase.Instance.GetCropInfo(cropID), pos);
-        SoundManager.Instance.PlaySound(plantSound);
+        Vector3Int pos = tileData.GetGridPos();
+        GameManager manager = FindFirstObjectByType<GameManager>();
+        manager.SpawnResourceOnTile(ResourceDatabase.Instance.GetResourceInfo(cropID), pos);
         onPlant?.Invoke();
     }
 }

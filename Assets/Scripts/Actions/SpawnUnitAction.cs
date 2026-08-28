@@ -8,45 +8,6 @@ public class SpawnUnitAction : EntityAction
 {
     public int unitID = 1;
     public static Action OnSpawn;
-    public override string GetName()
-    {
-        return "SpawnUnit";
-    }
-
-    public override List<Vector3Int> GetValidTargets(Entity entity)
-    {
-        List<Vector3Int> targets = new List<Vector3Int>();
-        //get references 
-        if (entity == null)
-        {
-            Debug.LogError("Trying to get valid targets based on an invalid Unit in attack action");
-            return targets;
-        }
-
-        TileManager TM = FindFirstObjectByType<TileManager>();
-
-        Vector3Int startPos = entity.GetGridPos();
-
-        //get a reference to all tiles nearby and check if there are opposing units there
-        foreach (Vector3Int offset in TileManager.DIRECTIONS)
-        {
-            Vector3Int currentTile = startPos + offset;
-            TileData data = TM.GetTileDataAt(currentTile);
-
-            if (data != null && data.CanPlaceEntity())
-            {
-                targets.Add(currentTile);
-            }
-        }
-
-        Debug.Log("barn sees " + targets.Count + "valid targets for spawning");
-        return targets;
-    }
-
-    public override bool IsAOE()
-    {
-        return false;
-    }
 
     public override bool IsPossible(Entity entity)
     {
@@ -57,27 +18,28 @@ public class SpawnUnitAction : EntityAction
         }
         return false;
     }
-
-    public override void PerformAt(Entity entity, List<Vector3Int> positions)
+    
+    public void SetSpawnUnit(int unitId)
     {
-        if (IsAOE())
-        {
-            //do multiple
-        }
-        else
-        {
-            PerformAt(entity, positions[0]);
-        }
+        unitID = unitId;
     }
 
-    public override void PerformAt(Entity entity, Vector3Int pos)
+    //actually checks to see if the action can be done at position tilePos
+    public override bool Action(Entity caster, TileData tileData)
     {
-        TileManager manager = FindFirstObjectByType<TileManager>();
+        if (tileData != null && tileData.CanPlaceEntity())
+        {
+            return true;
+        }
+        return false;
+    }
+    //actually preforms the Action on the tile
+    public override void PerformAt(Entity caster, TileData tileData)
+    {
         GameManager gameManager = FindFirstObjectByType<GameManager>();
-        //Execute a simple attack on the unit at the location specified
-        TileData data = manager.GetTileDataAt(pos);
+        Vector3Int pos = tileData.GetGridPos();
 
-        if (data == null)
+        if (tileData == null)
         {
             return;
         }
@@ -86,13 +48,7 @@ public class SpawnUnitAction : EntityAction
         UnitInfo info = UnitDatabase.Instance.GetUnitInfo(unitID);
         gameManager.SpawnUnitOnTile(info, pos);
         //Deactivate that unit
-        data.GetOccupyingEntity().Deactivate();
+        tileData.GetOccupyingEntity().Deactivate();
         OnSpawn?.Invoke();
-
-    }
-
-    public void SetSpawnUnit(int unitId)
-    {
-        unitID = unitId;
     }
 }

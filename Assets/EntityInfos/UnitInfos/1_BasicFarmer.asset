@@ -27,7 +27,7 @@ MonoBehaviour:
   hurtSound: {fileID: 8300000, guid: d88985e9feca51649984a523bcd49efa, type: 3}
   deathSound: {fileID: 8300000, guid: 1eb23301a54e4e749965a894b4d2f2fe, type: 3}
   isEnemy: 0
-  attackRange: 0
+  attackRange: 1
   strength: 0
   moveRange: 4
   attackSound: {fileID: 8300000, guid: e16332a5543c49a46b7df1cc944aff25, type: 3}

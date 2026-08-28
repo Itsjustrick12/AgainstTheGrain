@@ -133,6 +133,11 @@ public class TileData
         return false;
     }
 
+    public Vector3Int GetGridPos()
+    {
+        return gridPos;
+    }
+
     public bool HasUnit()
     {
         if (occupyingEntity != null)

@@ -9,6 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4a95a75f40d05b74c93704f7776a8c69, type: 3}
-  m_Name: HarvestAction
-  m_EditorClassIdentifier: Assembly-CSharp::BasicHarvestAction
+  m_Script: {fileID: 11500000, guid: c8748a4b6eca6834e851536efbccc95b, type: 3}
+  m_Name: CancelAction
+  m_EditorClassIdentifier: Assembly-CSharp::Cancel
+  actionName: Cancel
+  actionTrigger: none
+  width: 1
+  length: 1
+  actionSound: {fileID: 0}

@@ -9,8 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d1a9b0ed67a56dd4ca4ca5ef1c451fa4, type: 3}
-  m_Name: PlantAction
-  m_EditorClassIdentifier: Assembly-CSharp::PlantAction
-  cropID: 3
-  plantSound: {fileID: 8300000, guid: f5e2ee5de7e1056448a06fc4e67435c1, type: 3}
+  m_Script: {fileID: 11500000, guid: 9b008cc6c9da946f98af26b5b3285b96, type: 3}
+  m_Name: ReaperAttackAction
+  m_EditorClassIdentifier: Assembly-CSharp::ReaperAttackAction
+  actionName: Attack
+  actionTrigger: attack
+  width: 2
+  length: 1
+  actionSound: {fileID: 0}

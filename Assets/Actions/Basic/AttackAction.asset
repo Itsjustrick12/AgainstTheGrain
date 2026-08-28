@@ -12,3 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a21df7023a8d9b4fba3488ea0a750ed, type: 3}
   m_Name: AttackAction
   m_EditorClassIdentifier: Assembly-CSharp::BasicAttackAction
+  actionName: Attack
+  actionTrigger: attack
+  width: 1
+  length: 1
+  actionSound: {fileID: 0}

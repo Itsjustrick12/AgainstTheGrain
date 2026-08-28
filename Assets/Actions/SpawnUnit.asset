@@ -12,4 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df747b5ee652c2a48a58b3dff9511180, type: 3}
   m_Name: SpawnUnit
   m_EditorClassIdentifier: Assembly-CSharp::SpawnUnitAction
+  actionName: Spawn Unit
+  actionTrigger: none
+  width: 1
+  length: 1
+  actionSound: {fileID: 0}
   unitID: 1

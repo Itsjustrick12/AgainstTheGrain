@@ -4,130 +4,119 @@ using static UnityEngine.EventSystems.EventTrigger;
 [CreateAssetMenu(menuName = "Actions/Attack")]
 public class BasicAttackAction : EntityAction
 {
-    public override string GetName()
+
+    [Tooltip("knockback distance must be greater than or equal to 0")]
+    public int distance = 0;
+
+    //actually checks to see if the action can be done by caster at centerTile
+    public virtual bool Action(Entity caster, Vector3Int centerTile)
     {
-        return "Attack";
-    }
-    //Need to validate size when returned
-    public override List<Vector3Int> GetValidTargets(Entity entity)
-    {
-        List<Vector3Int> targets = new List<Vector3Int>();
-        //get references 
-        if (entity == null)
+        TileManager manager = FindFirstObjectByType<TileManager>();
+        Vector3Int direction = GetDirection(caster, centerTile);
+
+        //checks valid targets in length
+        for (int i = 0; i <= length; i++)
         {
-            Debug.LogError("Trying to get valid targets based on an invalid Unit in attack action");
-            return targets;
-        }
-
-        TileManager TM = FindFirstObjectByType<TileManager>();
-
-        Unit unit = entity as Unit;
-        if (unit == null)
-        {
-            Debug.LogError("No Unit, just an entity");
-        }
-
-        Vector3Int startPos = unit.GetGridPos();
-        int atkRange = unit.GetAttackRange();
-
-        ////get a reference to all tiles nearby and check if there are opposing units there
-        //foreach (Vector3Int offset in TileManager.DIRECTIONS)
-        //{
-        //    Vector3Int currentTile = startPos + offset;
-        //    TileData data = TM.GetTileDataAt(currentTile);
-
-        //    if (data != null && data.HasOccupant())
-        //    {
-        //        Unit unitCheck = data.occupyingEntity as Unit;
-        //        if (unitCheck == null)
-        //        {
-        //            continue;
-        //        }
-        //        else if (!unit.IsSameTeamAs(unitCheck))
-        //        {
-
-        //            targets.Add(currentTile);
-        //        }
-
-        //    }
-        //}
-
-        for (int i = -atkRange; i <= atkRange; i++)
-        {
-            for (int j = -atkRange; j <= atkRange; j++)
+            //checks valid targets width
+            for (int j = 0; j <= width; j++)
             {
-                if (Mathf.Abs(i) + Mathf.Abs(j) > atkRange) continue;
+                //grabs the vector3Int for the current target tile
+                Vector3Int currentTile = centerTile + direction * i;
 
-                //Don't include self as target
-                if (i == 0 && j == 0) continue;
+                //gets the data of the tile
+                TileData data = manager.GetTileDataAt(currentTile);
 
-                Vector3Int currentTile = startPos + new Vector3Int(i, j, 0);
-                TileData data = TM.GetTileDataAt(currentTile);
+                //checks to see if there is an occupant on the tile
                 if (data != null && data.HasOccupant())
                 {
-                    Unit unitCheck = data.occupyingEntity as Unit;
-                    if (unitCheck != null && !unit.IsSameTeamAs(unitCheck))
+                    //checks if the caster and occupant are on the same team
+                    if (!caster.IsSameTeam(data.GetOccupyingEntity()))
                     {
-                        targets.Add(currentTile);
+                        return true;
                     }
                 }
             }
         }
-
-        return targets;
-
-    }
-
-    public override bool IsAOE()
-    {
         return false;
     }
 
-    public override bool IsPossible(Entity unit)
+    //actually has caster preform  action on centerTile
+    public virtual void PerformAt(Entity caster, Vector3Int centerTile)
     {
-        //Attack isn't possible if there are no nearby enemy units or the unit already moved
-        if (GetValidTargets(unit).Count <= 0 || !unit.IsActive())
-        {
-            return false;
-        }
-        return true;
-    }
-
-    public override void PerformAt(Entity unit, List<Vector3Int> positions)
-    {
-        //Just attack the unit from the selected position, for this basic attack there shouldn't be more than one target
-        PerformAt(unit, positions[0]);
-
-    }
-
-    public override void PerformAt(Entity entity, Vector3Int pos)
-    {
-        //Execute a simple attack on the unit at the location specified
-        Unit targetUnit = FindFirstObjectByType<TileManager>().GetUnitOnTile(pos);
-
-        if (targetUnit == null)
+        //make sure the caster exists
+        if (caster == null)
         {
             return;
         }
 
-        Unit unit = entity as Unit;
-        if (unit == null)
-        {
-            Debug.LogError("No Unit, just an entity");
-        }
+        TileManager manager = FindFirstObjectByType<TileManager>();
+        Vector3Int startPos = caster.GetGridPos();
 
-        if (unit.HasAnimator())
+        //TODO sets the offset to just be an increment of one
+        Vector3Int offset = (centerTile - startPos);
+
+        //checks valid targets in length
+        for (int i = 1; i <= length; i++)
         {
-            if(targetUnit.GetGridPos().x - unit.GetGridPos().x != 0)
+            //checks valid targets width
+            for (int j = 0; j < width; j++)
             {
-                unit.animator.SetFloat("facing", targetUnit.GetGridPos().x - unit.GetGridPos().x);
-            }
-            unit.SetAnimationTrigger("attack");
-        }
+                //finds the target tile
+                Vector3Int currentTile = startPos + offset * i;
+                TileData data = manager.GetTileDataAt(currentTile);
 
-        //do a simple attack
-        SoundManager.Instance.PlayEntitySound(entity, SoundType.ATTACK);
-        unit.ShowNumber(unit.GetStrength(), targetUnit.GetGridPos(), unit.GetGridPos().x - targetUnit.GetGridPos().x);
-        targetUnit.TakeDamage(unit.GetStrength(), unit.GetGridPos());
+                //if there's no width we just check the center tile
+                if (j == 0)
+                {
+                    //if the width is actionable
+                    if (data != null && data.HasOccupant())
+                    {
+                        Entity target = data.GetOccupyingEntity();
+                        if (!caster.IsSameTeam(target))
+                        {
+                            Debug.Log("Attacking at " + caster.GetGridPos());
+                            target.TakeDamage(caster.GetStrength(), caster.GetGridPos());
+                            if (distance > 0)
+                            {
+                                target.KnockbackHelper(caster, distance);
+                            }
+                        }
+                    }
+                }//if we have a width we go through all the widths
+                else
+                {
+                    Vector3Int checkTile = currentTile + new Vector3Int(offset.y * j, offset.x * j, 0);
+                    data = manager.GetTileDataAt(checkTile);
+                    if (data != null && data.HasOccupant())
+                    {
+                        Entity target = data.GetOccupyingEntity();
+                        if (!target.IsSameTeam(caster))
+                        {
+                            Debug.Log("Attacking at " + caster.GetGridPos());
+                            target.TakeDamage(caster.GetStrength(), target.GetGridPos());
+                            if (distance > 0)
+                            {
+                                target.KnockbackHelper(caster, distance);
+                            }
+                        }
+                    }
+                    checkTile = currentTile + new Vector3Int(offset.y * j * -1, offset.x * j * -1, 0);
+                    data = manager.GetTileDataAt(checkTile);
+                    if (data != null && data.HasOccupant())
+                    {
+                        Entity target = data.GetOccupyingEntity();
+                        if (!target.IsSameTeam(caster))
+                        {
+                            Debug.Log("Attacking at " + caster.GetGridPos());
+                            target.TakeDamage(caster.GetStrength(), target.GetGridPos());
+                            if (distance > 0)
+                            {
+                                target.KnockbackHelper(caster, distance);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

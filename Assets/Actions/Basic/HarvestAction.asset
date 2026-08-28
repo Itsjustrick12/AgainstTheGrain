@@ -9,7 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ad8d37b3e8d8f40fe8ce891925071770, type: 3}
-  m_Name: AdvancedWaterAction
-  m_EditorClassIdentifier: Assembly-CSharp::AdvancedWaterAction
-  waterSounds: []
+  m_Script: {fileID: 11500000, guid: 4a95a75f40d05b74c93704f7776a8c69, type: 3}
+  m_Name: HarvestAction
+  m_EditorClassIdentifier: Assembly-CSharp::BasicHarvestAction
+  actionName: Harvest
+  actionTrigger: harvest
+  width: 1
+  length: 1
+  actionSound: {fileID: 0}
